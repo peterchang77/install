@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# ==================================
+# USAGE
+# ==================================
+#
+# >> ./docker-run-cnn [name] [prefix], where:
+# 
+# [name]   = name of Docker container 
+# [prefix] = prefix to /home folder(s)
+#
+# EXAMPLES 
+#
+# Run a new "jupyter" containiner with default /home folder location:
+#
+# >> ./docker-run-cnn jupyter
+# 
+# Run a new "jupyter" containiner with /mnt/nfs/home folder location:
+#
+# >> ./docker-run-cnn jupyter /mnt/nfs
+#
+# Run a new "anonymizer" containiner with /mnt/nfs/home folder location:
+#
+# >> ./docker-run-cnn "anonymizer" /mnt/nfs
+#
+# ==================================
+
+# ==================================
+# Set default context
+# ==================================
+if [ $# -eq 0 ]; then
+    NAME="default"
+    PREFIX=""
+
+elif [ $# -eq 1 ]; then
+    NAME=$1
+    PREFIX=""
+
+else
+    NAME=$1
+    PREFIX=$2
+fi
+
+# ==================================
+# Run Docker 
+# ==================================
+sudo docker run -it --rm -v /Users:/home -v /Volumes:/mnt -v $PREFIX/data:/data --net="host" -e DISPLAY=$DISPLAY --name $NAME peterchang77/cnn-cpu:0.5
