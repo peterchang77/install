@@ -31,6 +31,26 @@ Note that the formal Python development environment is provided in Docker contai
 
 This script installs Nvidia drivers, Docker, Nvidia-Docker and pulls my pre-built Docker images with all the requisite Python dependencies. Note that the use of Nvidia-Docker decouples the underlying GPU and driver combination from the CUDA and cudNN library versions utilized in the Docker container, so that this container should work "out of the box" as long as the underlying Nvidia GPU is configured properly. Note that the command for auto install of Nvidia drivers is a new function in Ubuntu 18.04+; for other OS you will have to manually install the needed drivers.
 
+## Pulling Docker Images
+
+After installing Docker, you will need to either configure your own Docker image or retrieve a preconfigured image developed by somebody else. For the purposes of developing machine learning (and deep learning) algorithms in Python, I have several preconfigured Docker images (one each for CPU and GPU machines). The images can be pulled with the following commands:
+
+`>> sudo docker pull peterchang77/cnn-cpu:0.5`
+`>> sudo docker pull peterchang77/cnn-gpu:0.5`
+
+The image is prebuilt with JupyterLab and Python libraries / toolbox versions including:
+
+* CUDA 9.0 toolbox
+* cudNN 7.0 libraries
+* Python 3.5
+* Anaconda
+* Tensorflow 1.9
+* Keras 2.2.2
+* Medical imaging packages: pydicom, gdcm
+* Data science packages: jupyter, pandas, scipy, scikit-learn, cv2, matplotlib, ipdb, etc
+* Linux utilities: zsh, vim, tmux, git, silversearcher-ag, etc
+* NodeJS
+
 2. `./scripts/install-aws.sh` 
 
 If you are using a brand new AWS instance, there are a handful of commands that are useful for mounting a filesystem via NFS and downloading some commonly used dependencies (GCC, Java, etc) that AWS does not include by default.
