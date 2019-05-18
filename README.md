@@ -48,9 +48,9 @@ Furthermore, the container has been configured to copy all the local users (and 
 
 All these configurations have been precompiled in the following Bash run scripts based on GPU or CPU mode and/or Mac OS:
 
-`./run/docker-run-cnn-gpu`
-`./run/docker-run-cnn-cpu`
-`./run/docker-run-cnn-mac`
+* `./run/docker-run-cnn-gpu`
+* `./run/docker-run-cnn-cpu`
+* `./run/docker-run-cnn-mac`
 
 **Usage**
 
