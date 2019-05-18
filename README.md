@@ -59,7 +59,7 @@ All these configurations have been precompiled in the following Bash run scripts
 [name]   = name of Docker container 
 [prefix] = prefix to /home folder(s)
 
-EXAMPLES 
+*Examples*
 
 Run a new "jupyter" containiner with default /home folder location:
 
