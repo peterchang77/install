@@ -23,8 +23,8 @@ Note that the formal Python development environment is provided in Docker contai
 
 **Usage**
 
-'''
->> ./install.sh [package-manager], where:
+'''script
+./install.sh [package-manager], where:
 
 [package-manager] = apt-get, yum, brew, etc depending on OS 
 '''
@@ -56,8 +56,8 @@ All these configurations have been precompiled in the following Bash run scripts
 
 **Usage**
 
-'''
->> ./docker-run-cnn [name] [prefix], where:
+'''script
+./docker-run-cnn [name] [prefix], where:
 
 [name]   = name of Docker container 
 [prefix] = prefix to /home folder(s)
@@ -66,9 +66,9 @@ EXAMPLES
 
 Run a new "jupyter" containiner with default /home folder location:
 
->> ./docker-run-cnn jupyter
+./docker-run-cnn jupyter
 
 Run a new "jupyter" containiner with /mnt/nfs/home folder location:
 
->> ./docker-run-cnn jupyter /mnt/nfs
+./docker-run-cnn jupyter /mnt/nfs
 '''
