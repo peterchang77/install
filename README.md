@@ -35,8 +35,8 @@ This script installs Nvidia drivers, Docker, Nvidia-Docker and pulls my pre-buil
 
 After installing Docker, you will need to either configure your own Docker image or retrieve a preconfigured image developed by somebody else. For the purposes of developing machine learning (and deep learning) algorithms in Python, I have several preconfigured Docker images (one each for CPU and GPU machines). The images can be pulled with the following commands:
 
-`>> sudo docker pull peterchang77/cnn-cpu:0.5`
-`>> sudo docker pull peterchang77/cnn-gpu:0.5`
+* `>> sudo docker pull peterchang77/cnn-cpu:0.5`
+* `>> sudo docker pull peterchang77/cnn-gpu:0.5`
 
 The image is prebuilt with JupyterLab and Python libraries / toolbox versions including:
 
