@@ -44,4 +44,4 @@ fi
 # ==================================
 # Run Docker 
 # ==================================
-sudo docker run -it --rm -v /Users:/home -v /Volumes:/mnt -v $PREFIX/data:/data --net="host" -e DISPLAY=$DISPLAY --name $NAME peterchang77/cnn-cpu:0.5
+sudo docker run -it --rm -v /Users:/home -v /Volumes:/mnt -v $PREFIX/data:/data -p 7000:7000 -e DISPLAY=$DISPLAY --name $NAME peterchang77/cnn-cpu:0.5
