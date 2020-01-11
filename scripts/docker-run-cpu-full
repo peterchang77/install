@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# ==================================
+# USAGE
+# ==================================
+#
+# >> ./docker-run-gpu-lite [name] [prefix], where:
+# 
+# [name]   = name of Docker container 
+# [prefix] = prefix to /home folder(s)
+#
+# ==================================
+
+# ==================================
+# Set default context
+# ==================================
+if [ $# -eq 0 ]; then
+    NAME="default"
+    PREFIX=""
+
+elif [ $# -eq 1 ]; then
+    NAME=$1
+    PREFIX=""
+
+else
+    NAME=$1
+    PREFIX=$2
+fi
+
+if [ -d $PREFIX/data ]; then
+    PREFIX_DATA=$PREFIX
+else
+    PREFIX_DATA=""
+fi
+
+# ==================================
+# Copy passwords (host to backup)
+# ==================================
+if [ ! -d "$HOME/temp" ]; then
+    mkdir $HOME/temp
+fi
+sudo cp $PREFIX/etc/passwd $HOME/temp
+sudo cp $PREFIX/etc/shadow $HOME/temp
+sudo cp $PREFIX/etc/group $HOME/temp
+sudo cp $PREFIX/etc/gshadow $HOME/temp
+
+# ==================================
+# Run Docker 
+# ==================================
+sudo docker run -it --rm -v /mnt:/mnt:Z -v $PREFIX/home:/home:Z -v $PREFIX_DATA/data:/data:Z -v $HOME/temp:/root/temp:Z -v $HOME/.Xauthority:/root/.Xauthority:Z --net="host" -e DISPLAY=$DISPLAY --name $NAME peterchang77/cpu-full:1.0

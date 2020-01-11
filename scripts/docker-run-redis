@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [ $# -eq 0  ]; then
+    NAME="redis"
+else 
+    NAME=$1
+fi
+
+sudo docker run -it --name $NAME --rm -p 6379:6379 -v /mnt/tmp:/mnt/tmp:Z redis:5.0.5 redis-server
