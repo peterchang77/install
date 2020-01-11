@@ -77,10 +77,10 @@ In addition, all Docker images are compiled as either `gpu` or `cpu` versions (t
 To download the necessary Docker image(s) use the following commands:
 
 ```bash
-$ sudo docker pull peterchang77/gpu-full:1.0
-$ sudo docker pull peterchang77/gpu-lite:1.0
-$ sudo docker pull peterchang77/cpu-full:1.0
-$ sudo docker pull peterchang77/cpu-lite:1.0
+$ sudo docker pull peterchang77/gpu-full:latest
+$ sudo docker pull peterchang77/gpu-lite:latest
+$ sudo docker pull peterchang77/cpu-full:latest
+$ sudo docker pull peterchang77/cpu-lite:latest
 ```
 
 # Running Docker Images
@@ -104,7 +104,7 @@ All these configurations have been precompiled in the following Bash run scripts
 **Usage**
 
 ```bash
-$ ./docker-run-cnn [name] [prefix]
+$ ./docker-run-gpu-full [name] [prefix]
 ```
 
 Here `[name]` represents the name you give to the Docker container. In addition the script will attempt to mount your local OS home folder into the Docker environment. The location of home is assumed to be `/home` unless an additional `[prefix]` is provided (e.g. if your home folder is mounted via NFS, etc). 
