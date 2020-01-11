@@ -1,9 +1,0 @@
-#!/bin/bash
-
-if [ $# -eq 0  ]; then
-    NAME="mongodb"
-else 
-    NAME=$1
-fi
-
-sudo docker run -it --name $NAME --rm -p 27017:27017 -v /data/db:/data/db:Z -v /mnt/nfs/logs:/var/log/mongodb:Z -v /mnt/nfs/etc/mongo:/etc/mongo:Z mongo:4.1.10-bionic  
