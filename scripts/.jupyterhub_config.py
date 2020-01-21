@@ -545,16 +545,18 @@
 #  across upgrades, so if you are using the callable take care to verify it
 #  continues to work after upgrades!
 
-c.Spawner.environment = {
-    'VIEWER_IP': '160.87.25.45',
-    'VIEWER_PORT': '7000',
-    'DEEPD_IP': '160.87.25.45',
-    'DEEPD_PORT': '27787',
-    'FILED_IP': '160.87.25.45',
-    'FILED_PORT': '17787',
-    'MONGO_IP': '160.87.25.45',
-    'MONGO_PORT': '27017'
-}
+# ===================================================
+# CUSTOM ENV CODE
+# ===================================================
+
+import os
+dl_env = os.environ.get('PYTHONPATH', '').split(':')
+dl_env = {os.path.basename(d): d for d in dl_env}
+dl_env = {'{}_ROOT'.format(k.upper()): v for k, v in dl_env.items() if k[:3] == 'dl_' and len(k) == 8}
+
+c.Spawner.environment = dl_env 
+
+# ===================================================
 
 ## Timeout (in seconds) before giving up on a spawned HTTP server
 #  

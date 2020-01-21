@@ -8,6 +8,4 @@
 #
 # ==================================
 
-source activate cnn
-
 jupyterhub --ip='*' -f $PWD/.jupyterhub_config.py
