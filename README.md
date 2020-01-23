@@ -83,23 +83,27 @@ $ sudo docker pull peterchang77/cpu-full:latest
 $ sudo docker pull peterchang77/cpu-lite:latest
 ```
 
-# Running Docker Images
+# Docker for Data Science
 
-To use Docker as an interactive virtual machine, you will need to invoke a handful of command line flags to:
+The power of Docker containerization is the ability to consolidate all runtime dependencies (including OS) into a single portable package. The most common use-case of this technology is in the setting of software deployment where an entire application (including necessary source code) is packaged inside a Docker image. When the container is instatiated, a single line of code or script is invoked to launch the prepared application; when complete, the container is removed. 
+
+In the context of data science, several key modifications to the conventional workflow can be implemented to use Docker containers as a persistent environment for active software development. In this strategy, the instantiated container is run *interactively* so that it can be used as a stand-in replacement for your underlying OS to write, test and debug code.
+
+To use a Docker container in this way as an interactive virtual machine, you will need to invoke the `docker run` command with command line flags to:
 
 * run in interative mode (`-it`)
 * mount the local file system at several points (`-v`)
 * mount the local `.Xauthority` file and copy the `$DISPLAY` env variable for X11 forwarding
 * map ports for remote access (e.g. Jupyter, database)
 
-Furthermore, the all `full` versions of the Docker images have been configured to forward all local users (and passwords) into the Docker container, which allows for PAM authentication directly in the virtual environment (e.g. JupyterHub login).
-
-All these configurations have been precompiled in the following Bash run scripts based in the `/scripts/` subdirectory.
+To facilitate invoking `docker run` with the necessary flags, several Bash scripts have been prepared in the `/scripts/` subdirectory.
 
 * `./docker-run-gpu-full`
 * `./docker-run-gpu-lite`
 * `./docker-run-cpu-full`
 * `./docker-run-cpu-lite`
+
+**Note**: In addition to command line flags, the `full` versions of the above scripts have been configured to make a copy of all local users (and passwords) and forward into the Docker container, which allows for PAM authentication directly in the virtual environment (e.g. JupyterHub login).
 
 **Usage**
 
