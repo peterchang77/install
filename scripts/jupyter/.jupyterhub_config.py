@@ -554,6 +554,18 @@ dl_env = os.environ.get('PYTHONPATH', '').split(':')
 dl_env = {os.path.basename(d): d for d in dl_env}
 dl_env = {'{}_ROOT'.format(k.upper()): v for k, v in dl_env.items() if k[:3] == 'dl_' and len(k) == 8}
 
+if os.path.exists('/home/caidm/install'):
+
+    dl_env.update({
+        'VIEWER_IP': '128.195.185.253',
+        'VIEWER_PORT': '7000',
+        'DEEPD_IP': '128.195.185.253',
+        'DEEPD_PORT': '27787',
+        'FILED_IP': '128.195.185.253',
+        'FILED_PORT': '17787',
+        'MONGO_IP': '128.195.185.253',
+        'MONGO_PORT': '27017'})
+
 c.Spawner.environment = dl_env 
 
 # ===================================================

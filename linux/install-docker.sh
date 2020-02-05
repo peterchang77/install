@@ -8,15 +8,19 @@
 # - Nvidia-Container Toolkit
 # - Docker Compose
 # 
-# NOTE: this script is for Debian-based OS. Consider
-# minor updates for alternative package managers.
 # =======================================================
 
 # =======================================================
 # INSTALL NVIDIA drivers
 # =======================================================
+# --- Debian
 # ubuntu-drivers devices
 # sudo ubuntu-drivers autoinstall
+# 
+# --- CentOS
+# wget http://us.download.nvidia.com/XFree86/Linux-x86_64/440.59/NVIDIA-Linux-x86_64-440.59.run
+# sudo systemctl isolate multi-user.target
+# sudo bash NVIDIA-Linux-x86_64-440.59.run
 
 # =======================================================
 # INSTALL Docker
@@ -57,9 +61,11 @@
 # sudo yum update
 # sudo yum remove nvidia-docker2
 # sudo yum upgrade docker-ce
-# distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
-# curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.repo | sudo tee /etc/yum.repos.d/nvidia-docker.repo
-# sudo yum install -y nvidia-container-toolkit
+# # =======================================================
+# # distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+# # curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.repo | sudo tee /etc/yum.repos.d/nvidia-docker.repo
+# # sudo yum install -y nvidia-container-toolkit
+# # =======================================================
 # sudo systemctl restart docker
 
 # =======================================================
