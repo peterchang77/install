@@ -48,4 +48,4 @@ sudo cp $PREFIX/etc/gshadow $HOME/temp
 # Run Docker 
 # ==================================
 sudo docker run --gpus all -it --rm -v /mnt:/mnt:Z -v $PREFIX/home:/home:Z -v $PREFIX_DATA/data:/data:Z -v $HOME/temp:/root/temp:Z -v $HOME/.Xauthority:/root/.Xauthority:Z \
-    --cap-add SYS_ADMIN --device /dev/fuse --security-opt apparmor:unconfined --net="host" -e DISPLAY=$DISPLAY --name $NAME peterchang77/gpu-full:1.0
+    --cap-add SYS_ADMIN --device /dev/fuse --security-opt apparmor:unconfined --net="host" -e DISPLAY=$DISPLAY --name $NAME peterchang77/gpu-full:latest
