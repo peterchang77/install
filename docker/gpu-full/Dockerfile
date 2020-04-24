@@ -1,8 +1,9 @@
-FROM nvidia/cuda:10.0-cudnn7-runtime
+FROM nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04
 MAINTAINER Peter Chang <pchang077@gmail.com>
 
 # --- Copy files
-COPY env-linux-gpu-full.yml .tmux.conf .zshrc vim/.vimrc /root/
+COPY environment.yml .tmux.conf .zshrc vim/.vimrc /root/
+COPY wheels /root/wheels
 COPY vim/colors /root/.vim/colors
 
 # --- System packages 
@@ -27,13 +28,14 @@ RUN apt-get update && apt-get install -y wget curl bzip2 vim silversearcher-ag t
     wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
     bash Miniconda3-latest-Linux-x86_64.sh -p /miniconda -b && \
     rm Miniconda3-latest-Linux-x86_64.sh && \
-    /miniconda/bin/conda env create -f /root/env-linux-gpu-full.yml && \
+    /miniconda/bin/conda env create -f /root/environment.yml && \
+    for whl in $(find /root/wheels/*.whl); do /miniconda/envs/jarvis/bin/pip install $whl; done && \
 
 # --- Clear NVIDIA cache (otherwise must run as root)
     rm -rf ~/.nv/ && \
 
 # --- Clean up
-    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/wheels
 
 COPY setusers.sh /root/
 COPY .bashrc /root/

@@ -1,12 +1,18 @@
-FROM nvidia/cuda:10.0-cudnn7-runtime
+FROM nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04
 MAINTAINER Peter Chang <pchang077@gmail.com>
 
 # --- Copy files
-COPY env-linux-cpu-lite.yml .tmux.conf .zshrc vim/.vimrc /root/
+COPY environment.yml .tmux.conf .zshrc vim/.vimrc /root/
+COPY wheels /root/wheels
 COPY vim/colors /root/.vim/colors
 
 # --- System packages 
-RUN apt-get update && apt-get install -y wget curl bzip2 vim silversearcher-ag tmux zsh git zip unzip && \
+RUN apt-get update && apt-get install -y wget curl bzip2 vim silversearcher-ag tmux zsh git zip unzip build-essential && \
+    apt-get install -y ranger caca-utils highlight atool w3m poppler-utils mediainfo && \
+    apt-get install -y python3-openslide && \
+
+# --- X11
+    apt-get install -y libxi6 libsm6 libxext6 libxrender-dev && \
 
 # --- zsh / vim
     git clone https://github.com/robbyrussell/oh-my-zsh.git /root/.oh-my-zsh && \
@@ -22,14 +28,16 @@ RUN apt-get update && apt-get install -y wget curl bzip2 vim silversearcher-ag t
     wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
     bash Miniconda3-latest-Linux-x86_64.sh -p /miniconda -b && \
     rm Miniconda3-latest-Linux-x86_64.sh && \
-    /miniconda/bin/conda env create -f /root/env-linux-cpu-lite.yml && \
+    /miniconda/bin/conda env create -f /root/environment.yml && \
+    for whl in $(find /root/wheels/*.whl); do /miniconda/envs/jarvis/bin/pip install $whl; done && \
 
 # --- Clear NVIDIA cache (otherwise must run as root)
     rm -rf ~/.nv/ && \
 
 # --- Clean up
-    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/wheels
 
+COPY setusers.sh /root/
 COPY .bashrc /root/
 
 ENV PATH=/miniconda/bin:$PATH
@@ -39,4 +47,3 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8 
 ENV XDG_RUNTIME_DIR=/tmp/runtime-root
 ENV QT_XKB_CONFIG_ROOT=/usr/share/X11/xkb
-

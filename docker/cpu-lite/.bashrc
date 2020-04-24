@@ -115,3 +115,20 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
+
+# ======================================================================
+# CUSTOM SETTINGS
+# ======================================================================
+
+# --- Set users (only on initial launch)
+~/setusers.sh
+
+# --- Activate conda env
+source activate jarvis
+
+# --- Run startup script if set
+if [ ! -z $JARVIS_ENTRY_SCRIPT ]; then
+    if [ -f $JARVIS_ENTRY_SCRIPT ]; then
+        source $JARVIS_ENTRY_SCRIPT
+    fi
+fi
