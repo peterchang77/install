@@ -65,7 +65,7 @@ After recieving notification of successful limit increase, log into the EC2 cons
 
 At this point, select a template image to use as the base installation (OS and associated software). There are a number of prebuilt images optimized for deep learning availabe for ease of use, several of which are listed here (any of the following may be selected). Note that for those without significant experience with Linux based OS, either Ubuntu or Amazon Linux are good recommended choices for OS:
 
-![AWS Instance Image](./screenshots/aws-ec2new02-1.png | width=100)
+![AWS Instance Image](./screenshots/aws-ec2new02-1.png)
 
 For the second step, we need to choose the EC2 instance type. Scroll down the page until you get to `p2.xlarge` in the Instance Type column. This is the baseline single GPU instance.
 
