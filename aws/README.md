@@ -25,7 +25,7 @@ Use the following link to log into your new AWS account: https://console.aws.ama
 
 On the following page, enter the email address of your AWS account and click `Next`:
 
-![AWS Login Screen](./screenshots/aws-login00.png)
+![AWS Login Screen](./screenshots/aws-login00-1.png)
 
 On the following page, enter the password of your AWS account and click `Sign In`:
 
@@ -79,9 +79,9 @@ On the top set of links, click on `Add Tags` to name your new EC2 instance (for 
 
 ![AWS Tags Selection](./screenshots/aws-ec2new05.png)
 
-On the top set of links, click on `Configure Security Group` to set up port firewall settings. First we will create an arbitrary name for this profile of settings by changing `Security group name` and `Description` to `deep-learning`. By default port 22 (for SSH) is allowed. In addition we must open the default Jupyter notebook port 8888 to allow you to connect to the EC2 instance and edit code through a web browser. To do so, click `Add Rule` and fill in the following settings:
+On the top set of links, click on `Configure Security Group` to set up port firewall settings. First we will create an arbitrary name for this profile of settings by changing `Security group name` and `Description` to `deep-learning`. By default port 22 (for SSH) is allowed. In addition we must open the default Jupyter notebook port 8000 to allow you to connect to the EC2 instance and edit code through a web browser. To do so, click `Add Rule` and fill in the following settings:
 
-![AWS Security Selection](./screenshots/aws-ec2new06.png)
+![AWS Security Selection](./screenshots/aws-ec2new06-1.png)
 
 On the top set of links, click on `Review` to see a summary of the EC2 settings. Click on the bottom right hand `Launch` button.
 
