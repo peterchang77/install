@@ -22,7 +22,7 @@ To facilitate installation, Bash scripts are provided in the `/linux/` subdirect
 The NVIDIA drivers needed for your machine will vary based on underlying hardware. To check if any existing drivers are already installed, try the following command:
 
 ```bash
-$ nvidia-docker
+$ nvidia-smi
 ```
 
 If one (or multiple) device(s) are listed, then drivers are installed already. If you need to install drivers, please consult the Nvidia website to find the appropriate driver for your device: https://www.nvidia.com/Download/index.aspx. If you are using a Debian-based OS (Ubuntu), the following commands will attempt to automatically identify and install the required packages:
