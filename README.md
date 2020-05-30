@@ -12,9 +12,6 @@ To facilitate installation, Bash scripts are provided in the `/linux/` subdirect
 
 (*optional*) Instructions for additional installation of common, useful command-line utilities is provided at the end of this README.md.
 
-1. Installation scripts (in `/scripts/` folder)
-2. Running containers, Jupyter, databased (in `/run/` folder)
-
 # Installation
 
 ## Install NVIDIA Drivers
@@ -160,4 +157,3 @@ $ ./install.sh [package-manager]
 ## install-aws.sh
 
 If you are using a brand new AWS instance, there are a handful of commands that are useful for mounting a filesystem via NFS and downloading some commonly used dependencies (GCC, Java, etc) that AWS does not include by default.
-
