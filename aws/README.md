@@ -63,7 +63,7 @@ After recieving notification of successful limit increase, log into the EC2 cons
 
 ![AWS Instance Selection](./screenshots/aws-ec2new01.png)
 
-At this point, select a template image to use as the base installation (OS and associated software). There are a number of prebuilt images optimized for deep learning availabe for ease of use. For those without significant experience with Linux based OS, either Ubuntu or Amazon Linux are good recommended choices for OS:
+At this point, select a template image to use as the base installation (OS and associated software). There are a number of prebuilt images optimized for deep learning availabe for ease of use, several of which are listed here (any of the following may be selected). Note that for those without significant experience with Linux based OS, either Ubuntu or Amazon Linux are good recommended choices for OS:
 
 ![AWS Instance Image](./screenshots/aws-ec2new02-1.png)
 
@@ -132,57 +132,3 @@ You should now be successfully logged into your remote SSH session.
 ### Stop EC2 instance 
 
 AWS charges a fixed cost per hour of EC2 instance usage, prorated to the second. To keep your charges low, it is advised to stop (e.g. turn off) your EC2 instance whenever your are finished. To do so, select the `Instances` link on the left hand toolbar, select the instance you want to stop, select `Actions` > `Instance State` > `Stop`.
-
-# Starting Jupyter Notebook 
-
-During the tutorial session, all code written by the participants will be completed using the Jupyter notebook, an iPython kernel / server that will be running from your own personal AWS instance and accessed through a web-browser. Through this web-based interface one will be able to write, edit and run code in an easy way without needing to use the Linux command line. For more advanced users, this entire Github repository is available for access from the command line at `~/dl_tutorial`. See below for more information.
-
-### Starting Jupyter server
-
-A preconfigured Jupyter server has been set up on the EC2 instance broadcasting on port 8888. To launch this server simply run the following bash script after connecting to your EC2 instance (located in your home folder):
-```
-./start_jupyter.sh
-```
-
-This bash script will:
-
-* update to the latest version of this repository from Github
-* activate the `dl_aws` conda environment
-* launch a Jupyter server listening of port 8888
-
-Upon execution, two URLs are shown: 
-
-![AWS Jupyter server](./screenshots/aws-jupyter01.png)
-
-The first URL is prefixed with `0.0.0.0`, the default template provided by the Jupyter notebook server, and the second URL is created by an auto-IP detection script, filling the address with your public IP address. If this does not appear, see **Finding your public IP address** section below to locate this manually. 
-
-To connect to this Jupyter server, open a web-browser (e.g. Google Chrome) enter the URL into the address bar. 
-
-![AWS Jupyter server](./screenshots/aws-jupyter02.png)
-
-Press `[enter]` to navigate to the web page. You now have access to a web-based iPython kernel though the Jupyter notebook. You also have access to the files on your AWS EC2 instance. By default you will login into a clone of this Github code repository pre-configured into your EC2 instance:
-
-![AWS Jupyter launch page](./screenshots/aws-jupyter03.png)
-
-Click on the `Code` folder to open and access the series of Jupyter notebook lectures (`*.ipnyb`) and template code provided for you as part of this tutorial. If you are unfamiliar with Jupyter you can launch the `00 - Hello Tensorflow.ipynb` notebook to walk through a basic working example by simply clicking on it:
-
-![AWS Jupyter code page](./screenshots/aws-jupyter04.png)
- 
-You should now have access to our first example Jupyter notebook. Feel free to walk through this template, execute the code (which will be run on your EC2 instance) and edit as you see fit.
-
-![AWS Jupyter hello_tensorflow.ipynb](./screenshots/aws-jupyter05.png)
-
-### Finding your public IP address
-
-If the auto-IP detection feature does not work on your EC2 instance, you will need to manually find your IP address in the AWS dashboard. The public IP address of your instance can be found in the `Instances` menu of the EC2 dashboard:
-
-![AWS IP Address](./screenshots/aws-jupyter00.png)
-
-# Advanced Users
-
-For more advanced users wishing to follow along directly through the EC2 command line instead of the Jupyter notebook, these are instructions for basic access. In the EC2 instance, all required dependencies have been installed in a separate Conda virtual enivornment named `dl_aws`. To activate simply run:
-```
-source activate dl_aws
-```
-
-From here simply access code and materials from this cloned Github repository at `~/dl_tutorial`. You may use your favorite editor. Note that `vim` has been preconfigured with syntax highlighting, Vundle and several useful plugins for Python development (see `~/.vimrc` for further details). Code may be executed with either `python` or the `ipython` kernel.
