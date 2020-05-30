@@ -1,3 +1,0 @@
-#!/bin/bash
-
-jupyterhub --ip='*' -f .jupyterhub_config.py

@@ -96,35 +96,39 @@ To use a Docker container in this way as an interactive virtual machine, you wil
 * mount the local `.Xauthority` file and copy the `$DISPLAY` env variable for X11 forwarding
 * map ports for remote access (e.g. Jupyter, database)
 
-To facilitate invoking `docker run` with the necessary flags, several Bash scripts have been prepared in the `/scripts/` subdirectory.
+To facilitate invoking `docker run` with the necessary flags, a Bash script has been prepared in the `/scripts/` subdirectory.
 
-* `./docker-run-gpu-full`
-* `./docker-run-gpu-lite`
-* `./docker-run-cpu-full`
-* `./docker-run-cpu-lite`
-
-**Note**: In addition to command line flags, the `full` versions of the above scripts have been configured to make a copy of all local users (and passwords) and forward into the Docker container, which allows for PAM authentication directly in the virtual environment (e.g. JupyterHub login).
-
-**Usage**
-
-```bash
-$ ./docker-run-gpu-full [name] [prefix]
 ```
+./docker-run.sh
 
-Here `[name]` represents the name you give to the Docker container. In addition the script will attempt to mount your local OS home folder into the Docker environment. The location of home is assumed to be `/home` unless an additional `[prefix]` is provided (e.g. if your home folder is mounted via NFS, etc). 
+USAGE: ./docker-run.sh [-options ...] 
+
+Launch a single Docker container
+
+By default, the /home, /data and /mnt folders will be mounted from host
+
+OPTIONS:
+
+  -i or --image         Name of container image to launch (default is gpu-full)
+  -n or --name          Name of instantiated container
+  -x or --prefix        Prefix of /data and /home to mount (e.g. /mnt/nfs)
+  -c or --command       Command to run
+  -h or --help          Print help
+
+```
 
 *Examples*
 
-Run a new container with the name "jupyter" with (standard) /home folder location:
+1. Run a new container with the name "jupyter" with (standard) /home folder location:
 
 ```bash
-$ ./docker-run-gpu-full jupyter
+$ ./docker-run.sh -n jupyter
 ```
 
-Run a new container with the name "jupyter" with /mnt/nfs/home folder location:
+Then, once **inside** the container , launch JupyterHub:
 
 ```bash
-$ ./docker-run-gpu-full jupyter /mnt/nfs
+$ jupyterhub
 ```
 
 # Linux Utilities
