@@ -37,6 +37,7 @@ HARDWARE="--gpus all"
 # --- Attempt to infer hardware (GPU or CPU) 
 if ! [ -x "$(command -v nvidia-smi)" ]; then
     echo "Nvidia GPU drivers not installed, defaulting to CPU mode"
+    IMAGE="cpu-full"
     HARDWARE=""
 fi
 
@@ -60,6 +61,7 @@ while [[ $1 != "" ]]; do
             shift
             ;;
         -u | --cpu)
+            IMAGE="cpu-full"
             HARDWARE=""
             ;;
         -h | --help)
