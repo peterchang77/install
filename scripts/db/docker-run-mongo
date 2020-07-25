@@ -6,4 +6,4 @@ else
     NAME=$1
 fi
 
-sudo docker run -it --name $NAME --rm --net="host" -v /data/db:/data/db:Z -v /mnt/nfs/logs:/var/log/mongodb:Z -v /mnt/nfs/etc/mongo:/etc/mongo:Z mongo:4.1.10-bionic --bind_ip=127.0.0.1 
+sudo docker run -it --name $NAME --rm --net="host" -v /mnt/hdd1/data/db:/data/db:Z -v /mnt/nfs/logs:/var/log/mongodb:Z -v /mnt/nfs/etc/mongo:/etc/mongo:Z mongo:4.1.10-bionic --bind_ip=127.0.0.1 

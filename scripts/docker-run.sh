@@ -17,6 +17,7 @@ OPTIONS:
   -n or --name          Name of instantiated container
   -x or --prefix        Prefix of /data and /home to mount (e.g. /mnt/nfs)
   -c or --command       Command to run
+  -u or --cpu           Use CPU mode
   -h or --help          Print help
 
 "
@@ -28,6 +29,16 @@ usage() {
 # =======================================================================
 # PARSE ARGUMENTS
 # =======================================================================
+
+# --- Set defaults
+IMAGE="gpu-full"
+HARDWARE="--gpus all"
+
+# --- Attempt to infer hardware (GPU or CPU) 
+if ! [ -x "$(command -v nvidia-smi)" ]; then
+    echo "Nvidia GPU drivers not installed, defaulting to CPU mode"
+    HARDWARE=""
+fi
 
 # --- Extract arguments 
 while [[ $1 != "" ]]; do
@@ -48,6 +59,9 @@ while [[ $1 != "" ]]; do
             CMD="$2"
             shift
             ;;
+        -u | --cpu)
+            HARDWARE=""
+            ;;
         -h | --help)
             usage
             exit
@@ -67,9 +81,6 @@ if [[ -z $NAME ]]; then
     usage
     exit
 fi
-
-# --- Set defaults
-IMAGE=${IMAGE:-"gpu-full"}
 
 # =======================================================================
 # FUNCTIONS 
@@ -95,7 +106,7 @@ copy_users() {
 # --- Copy users
 copy_users
 
-sudo -E docker run --gpus all -it --rm \
+sudo -E docker run $HARDWARE -it --rm \
     -v /mnt:/mnt:Z -v $PREFIX/home:/home:Z -v $PREFIX/data:/data:Z \
     -v $HOME/temp/etc:/root/temp:Z -v $HOME/.Xauthority:/root/.Xauthority:Z \
     --net="host" -e DISPLAY=$DISPLAY --name $NAME peterchang77/$IMAGE:latest $CMD

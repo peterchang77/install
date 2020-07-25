@@ -8,8 +8,15 @@ COPY vim/colors /root/.vim/colors
 
 # --- System packages 
 RUN apt-get update && apt-get install -y wget curl bzip2 vim silversearcher-ag tmux zsh git zip unzip build-essential && \
+    apt-get install -y default-jre && \
     apt-get install -y ranger caca-utils highlight atool w3m poppler-utils mediainfo && \
     apt-get install -y python3-openslide && \
+
+# --- dcm4che
+    wget -O dcm4che.zip https://www.dropbox.com/s/zl7adkprqeebvnh/dcm4che.zip?dl=1 && \
+    unzip dcm4che.zip -d /usr/local/dcm4che && \
+    ln -sf /usr/local/dcm4che/bin/storescp /usr/local/bin && \
+    rm dcm4che.zip && \
 
 # --- X11
     apt-get install -y libxi6 libsm6 libxext6 libxrender-dev && \
@@ -47,3 +54,4 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8 
 ENV XDG_RUNTIME_DIR=/tmp/runtime-root
 ENV QT_XKB_CONFIG_ROOT=/usr/share/X11/xkb
+ENV DCM4CHE_HOME=/usr/local/dcm4che

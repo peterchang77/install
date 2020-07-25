@@ -8,11 +8,6 @@ COPY vim/colors /root/.vim/colors
 
 # --- System packages 
 RUN apt-get update && apt-get install -y wget curl bzip2 vim silversearcher-ag tmux zsh git zip unzip build-essential && \
-    apt-get install -y ranger caca-utils highlight atool w3m poppler-utils mediainfo && \
-    apt-get install -y python3-openslide && \
-
-# --- X11
-    apt-get install -y libxi6 libsm6 libxext6 libxrender-dev && \
 
 # --- zsh / vim
     git clone https://github.com/robbyrussell/oh-my-zsh.git /root/.oh-my-zsh && \
@@ -46,4 +41,3 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en  
 ENV LC_ALL en_US.UTF-8 
 ENV XDG_RUNTIME_DIR=/tmp/runtime-root
-ENV QT_XKB_CONFIG_ROOT=/usr/share/X11/xkb
