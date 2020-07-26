@@ -108,7 +108,6 @@ while [[ $1 != "" ]]; do
         -e | --etc)
             MOUNT_ETC=$2
             shift
-            ;;
         -h | --help)
             usage
             exit
