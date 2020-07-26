@@ -43,7 +43,7 @@ If the host is a *nix-based OS, users (and passwords) are copied (NOT mounted) i
 
 If desired, an alternate location of the corresponding /etc folder can be specified:
 
-  -e or --etc           Alternate location of /etc dir to copy (with users and passwords)
+  -E or --etc           Alternate location of /etc dir to copy (with users and passwords)
 
 "
 
@@ -105,9 +105,10 @@ while [[ $1 != "" ]]; do
             MOUNT_MNT=$2
             shift
             ;;
-        -e | --etc)
+        -E | --etc)
             MOUNT_ETC=$2
             shift
+            ;;
         -h | --help)
             usage
             exit
