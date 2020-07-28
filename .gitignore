@@ -1,4 +1,3 @@
-.ipynb_checkpoints/
-jupyterhub*
-*.run
-.nfs*
+tmp-full/
+tmp-lite/
+*.tar.gz
