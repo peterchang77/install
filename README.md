@@ -14,7 +14,7 @@ Based on this approach the only *required* steps for preparing a new machine for
 
 **Important**: At this time, these instructions *only* work for Linux-basd operating systems. Currently, Windows Docker does not support the use of NVIDIA GPU in containers. In addition, Mac OS does not support NVIDIA hardware. 
 
-To setup an appropriate development environment on non-Linux operating systems, consider the following steps:
+Instead, to setup an appropriate development environment on non-Linux operating systems, consider the following steps:
 
 1. Install appropriate NVIDIA drivers (if not done already; see information below)
 2. Install CUDA Toolkit 10.1: https://developer.nvidia.com/cuda-toolkit-archive
@@ -22,7 +22,18 @@ To setup an appropriate development environment on non-Linux operating systems, 
 4. Install Anaconda (Python package manager): https://docs.anaconda.com/anaconda/install/
 5. Install Python dependencies using Anaconda
 
-The 
+### Install dependencies with Conda
+
+There are a total of four different prebuilt environments depending on whether GPU or CPU hardware is available and whether a larger `full` or smaller `lite` installation is preferred. See information about [Pulling Docker Images](#pulling-docker-images) below for further details.
+
+For each environment, a corresponding Conda `*.yml` file is available in the `/docker/` subdirectory. Use the `conda env create -f [file]` command to install the dependencies specified in the `*.yml` file of choice:
+
+```bash
+$ conda env create -y [path/to/repo/]docker/gpu-full/environment.yml, OR
+$ conda env create -y [path/to/repo/]docker/gpu-lite/environment.yml, OR
+$ conda env create -y [path/to/repo/]docker/cpu-full/environment.yml, OR
+$ conda env create -y [path/to/repo/]docker/cpu-lite/environment.yml
+```
 
 # Installation
 
@@ -51,29 +62,29 @@ If you are using another Linux-based OS, please consult the NVIDIA website above
 
 A Docker container image is a lightweight, standalone, executable package of software that includes everything needed to run code (dependencies such as runtime, OS, system libraries, etc) in a reliable manner from one computing environment to another. In the context of data science, this will ensure that a uniform development environment and tools (Python and libraries, Jupyter notebook, Linux OS, etc) are available regardless of the underlying operating system and software currently installed on your machine. 
 
-More specifically, several Docker images (details below) have been prepared (pre-installed) with a number of data science tools relevant to medical imaging. Using these images will provide you full access to a Ubuntu-based operating system loaded with Python, Tensorflow and the required dependencies (*regardless* of your native OS). To use these Docker images, the following must be installed:
+More specifically, several Docker images (details below) have been prepared (pre-installed) with a number of data science tools relevant to medical imaging. Using these Docker images will provide you full access to a Ubuntu-based operating system loaded with Python, Tensorflow and the required dependencies (*regardless* of your native OS). To use these Docker images, the following must be installed:
 
-* Docker runtime engine: baseline software to run containers
-* NVIDIA-Container toolkit: enables NVIDIA GPU support for containers
+* Docker runtime engine (baseline software to run containers): https://docs.docker.com/engine/install/ 
+* NVIDIA-Container toolkit (enables NVIDIA GPU support for containers): https://github.com/NVIDIA/nvidia-docker
 
-More information about NVIDIA Container Toolkit can be found here: https://github.com/NVIDIA/nvidia-docker. 
+Note that the use of the NVIDIA-Container toolkit decouples the underlying GPU and driver combination (that you just installed above) from the CUDA and cuDNN library versions utilized in the Docker container, so that this container should work "out of the box" as long as the underlying NVIDIA GPU drivers are configured properly.
 
 ### Linux
 
-The `install-docker.sh` script within the `/linux/` subdirectory of this repository installs Docker runtime and the NVIDIA-Container Toolkit. Note that the use of the NVIDIA-Container toolkit decouples the underlying GPU and driver combination (that you just installed above) from the CUDA and cudNN library versions utilized in the Docker container, so that this container should work "out of the box" as long as the underlying NVIDIA GPU drivers are configured properly. 
+For Debian and CentOS based Linux systems, Bash scripts for installing Docker runtime, NVIDIA-container toolkit and Docker Compose (optional) are provided in the `/linux/` subdirectory of this repository:
 
-### Windows
+* `linux/install-docker-debian.sh` 
+* `linux/install-docker-centos.sh` 
 
-1. Install Docker runtime: https://docs.docker.com/docker-for-windows/install/
-2. Install 
+Simply run the scripts and follow the prompts. If there is an error, recommend manual installation via the official Docker links above.
 
 ## Pulling Docker Images
 
-The following commands will pull (download) Docker images that I have created preconfigured with the necessary software and libraries for developing machine learning (and deep learning) algorithms in Python. The full Dockerfiles can be found in the `/docker/` subdirectory of the repository. For those that are interested in building the Python virtual environment manually, the corresponding Conda `*.yml` files can also be found in the respective Docker build diretories. 
+Once Docker has bene installed, the prebuilt Docker images need to be downloaded. The following commands will pull (download) Docker images that I have created preconfigured with the necessary software and libraries for developing machine learning (and deep learning) algorithms in Python. The full Dockerfiles can be found in the `/docker/` subdirectory of the repository for those interested in manually building (and modifying) the Docker images. Alternatively, the Python virtual environments (managed via Conda) installed on the Docker images are availabe in the corresponding Conda `*.yml` files in the respective Docker build directories; see above [Install dependencies with Conda](#install-dependencies-with-conda) for more information. 
 
 There are a total of four versions of my prebuilt Docker images. The `full` versions of the images contain many useful Python modules and other software tools to reproduce a comprehensive development environment. The `lite` versions of the images contain only the minimum necessary modules to run models in a production environment. 
 
-All Docker images are built using Tensorflow 2.0 and Python 3.6. In addition the following lists an overview of available Python modules and software:
+All Docker images are built using Tensorflow 2.1 and Python 3.6. In addition the following lists an overview of available Python modules and software:
 
 *Python*
 
@@ -118,12 +129,19 @@ The power of Docker containerization is the ability to consolidate all runtime d
 
 In the context of data science, several key modifications to the conventional workflow can be implemented to use Docker containers as a persistent environment for active software development. In this strategy, the instantiated container is run *interactively* so that it can be used as a stand-in replacement for your underlying OS to write, test and debug code.
 
-To use a Docker container in this way as an interactive virtual machine, you will need to invoke the `docker run` command with command line flags to:
+To use a Docker container in this way as an interactive virtual machine, you will need to invoke the `docker run` command with the `-it` flag. A number of additional command line flags may also be used to enable specific functionality. At minimum, the following `docker run` command is recommended to launch a single interative container:
 
-* run in interative mode (`-it`)
-* mount the local file system at several points (`-v`)
-* mount the local `.Xauthority` file and copy the `$DISPLAY` env variable for X11 forwarding
-* map ports for remote access (e.g. Jupyter, database)
+```bash
+$ sudo docker run -it --rm --net="host" -v /data:/data --name my_container peterchang77/gpu-full:latest
+```
+
+Here the key flags include:
+
+* `-it`: run in interative mode
+* `--rm`: remove the container after complete
+* `--net="host"`: allow communication to the container on all ports accessible to host (for example Jupyter notebooks)
+* `-v /data:/data`: mount the `/data` directory on the current host into the Docker container; this allows files, code, and data to be accessed from within the Docker container and also ensures that any completed work persists after the container is closed (consider mounting additional folders as needed)
+* `--name`: name of container
 
 To facilitate invoking `docker run` with the necessary flags, a Bash script has been prepared in the `/scripts/` subdirectory.
 
@@ -134,15 +152,41 @@ USAGE: ./docker-run.sh [-options ...]
 
 Launch a single Docker container
 
-By default, the /home, /data and /mnt folders will be mounted from host
-
 OPTIONS:
 
+  -n or --name          Name of instantiated container (required)
   -i or --image         Name of container image to launch (default is gpu-full)
-  -n or --name          Name of instantiated container
-  -x or --prefix        Prefix of /data and /home to mount (e.g. /mnt/nfs)
-  -c or --command       Command to run
+  -c or --command       Command to run upon container initialization (default is None)
+  -C or --cpu           Use CPU mode (default is GPU mode)
   -h or --help          Print help
+
+MOUNT OPTIONS:
+
+By default, the following host volumes are mounted into the Docker container:
+
+  /home (access to host home directory and files)
+  /data (access to host data volume, if used)
+  /mnt  (access to mounted volumes e.g. external hard drive, USB, etc)
+
+If desired, alternate locations can be specified using the following flags:
+
+  -H or --home          Alternate location of /home dir to mount (e.g. /Users for Mac OS)
+  -d or --data          Alternate location of /data dir to mount 
+  -m or --mnt           Alternate location of /mnt  dir to mount (e.g. /Volumes for Mac OS)
+  -x or --prefix        Prefix for all location (e.g. /mnt/nfs if the above are served via NFS)
+
+USER OPTIONS:
+
+If the host is a *nix-based OS, users (and passwords) are copied (NOT mounted) into the container:
+
+  /etc/passwd
+  /etc/shadow
+  /etc/group
+  /etc/gshadow
+
+If desired, an alternate location of the corresponding /etc folder can be specified:
+
+  -E or --etc           Alternate location of /etc dir to copy (with users and passwords)
 
 ```
 
@@ -162,29 +206,19 @@ $ jupyterhub
 
 # Linux Utilities
 
-A number of Bash scripts are prepared in the `/linux/` subdirectory of this repository to install several commonly used tools for improved workflow, terminal session management, etc. As before, each line in the provided Bash scripts are commented out by default; to use simply identify the items you wish to install and uncomment / re-comment as need.
+A number of Bash scripts are prepared in the `/linux/` subdirectory of this repository to install several commonly used tools for improved workflow, terminal session management, etc. 
 
 ## install.sh
 
 This script installs a handful of common Linux tools, including:
 
 * vim (including Vundle, .vimrc configuration file, colors and plugins)
-* python3
 * silversearcher-ag
 * tmux and zsh
 * git
 * zsh
-* mongodb
 
-Note that the formal Python development environment is provided in Docker containers described below.
-
-**Usage**
-
-```bash
-$ ./install.sh [package-manager]
-```
-
-... where [package-manager] => apt-get, yum, brew, etc depending on OS.
+Note that the formal Python development environment is provided in Docker containers described above.
 
 ## install-aws.sh
 

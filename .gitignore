@@ -1,3 +1,4 @@
 tmp-full/
 tmp-lite/
 *.tar.gz
+*.swp
