@@ -33,7 +33,7 @@ echo "Using package-manager: $pm"
 echo "Install vim and plugins (y/n)?"
 read proceed
 if [ $proceed == "y" ]; then
-    sudo $pm install vim-nox
+    sudo $pm install vim
     git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
     cp vim/.vimrc ~/.vimrc
     cp -r ./vim/colors ~/.vim/colors
