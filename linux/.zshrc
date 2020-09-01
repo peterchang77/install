@@ -83,3 +83,17 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+
+# --- Git
+alias gg="git config --global credential.helper store"
+alias gs="git status"
+alias ga="git add -u"
+alias gc="git commit -m 'updates'; git push origin master"
+
+# --- Docker 
+alias ds="sudo docker ps -a"
+alias da="sudo docker attach $1"
+
+# --- Jarvis
+export JARVIS_PATH="$HOME/jarvis"
+alias jarvis="$JARVIS_PATH/jarvis-core/scripts/jarvis.sh"
