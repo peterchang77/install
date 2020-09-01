@@ -1,0 +1,64 @@
+- hosts: all
+  tasks:
+  - name: Install git 
+    yum:
+      name: git 
+      state: present
+      update_cache: true
+    become: true
+    become_method: sudo
+  - name: Git clone / update peterchang77/install repo 
+    git:
+      repo: https://github.com/peterchang77/install.git
+      dest: "{{ ansible_env.HOME }}/install"
+  - name: Install vim 
+    yum:
+      name: vim 
+      state: present
+      update_cache: true
+    become: true
+    become_method: sudo
+  - name: Install vundle
+    git:
+      repo: https://github.com/VundleVim/Vundle.vim.git
+      dest: "{{ ansible_env.HOME }}/.vim/bundle/Vundle.vim"
+  - name: Copy .vimrc configs
+    copy:
+      remote_src: true
+      src: "{{ ansible_env.HOME }}/install/linux/vim/.vimrc"
+      dest: "{{ ansible_env.HOME }}/.vimrc"
+  - name: Copy vim colors 
+    copy:
+      remote_src: true
+      src: "{{ ansible_env.HOME }}/install/linux/vim/colors"
+      dest: "{{ ansible_env.HOME }}/.vim"
+  - name: Install vim plugins
+    shell: vim +'PlugInstall --sync' +qall &> /dev/null < /dev/tty
+  - name: Install tmux
+    yum:
+      name: tmux
+      state: present
+      update_cache: true
+    become: true
+    become_method: sudo
+  - name: Copy tmux configs
+    copy:
+      remote_src: true
+      src: "{{ ansible_env.HOME }}/install/linux/.tmux.conf"
+      dest: "{{ ansible_env.HOME }}/.tmux.conf"
+  - name: Install zsh 
+    yum:
+      name: zsh
+      state: present
+      update_cache: true
+    become: true
+    become_method: sudo
+  - name: Git clone zsh color scheme | robbyrussell 
+    git:
+      repo: https://github.com/robbyrussell/oh-my-zsh.git
+      dest: "{{ ansible_env.HOME }}/.oh-my-zsh"
+  - name: Copy .zshrc configs
+    copy:
+      remote_src: true
+      src: "{{ ansible_env.HOME }}/install/linux/.zshrc"
+      dest: "{{ ansible_env.HOME }}/.zshrc"
