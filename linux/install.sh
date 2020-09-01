@@ -33,12 +33,14 @@ echo "Using package-manager: $pm"
 echo "Install vim and plugins (y/n)?"
 read proceed
 if [ $proceed == "y" ]; then
-    sudo $pm install vim
+    sudo $pm install -y vim
     git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
     cp vim/.vimrc ~/.vimrc
     cp -r ./vim/colors ~/.vim/colors
     vim +PluginInstall qall
-    sudo $pm install silversearcher-ag
+    if [ $pm == "apt-get" ]; then
+        sudo $pm install -y silversearcher-ag
+    fi
 fi
 
 # =============================================================================
@@ -47,14 +49,14 @@ fi
 echo "Install tmux (y/n)?"
 read proceed
 if [ $proceed == "y" ]; then
-    sudo $pm install tmux
+    sudo $pm install -y tmux
     cp .tmux.conf ~/.tmux.conf
 fi
 
 echo "Install zsh (y/n)?"
 read proceed
 if [ $proceed == "y" ]; then
-    sudo $pm install zsh
+    sudo $pm install -y zsh
     git clone https://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh
     cp .zshrc ~/.zshrc
 fi
@@ -72,7 +74,7 @@ fi
 # INSTALL git
 # =============================================================================
 if ! [ -x "$(command -v git)" ]; then
-    sudo $pm install git
+    sudo $pm install -y git
     echo "Enter Git email address:"
     read email
     echo "Enter Git username:"
@@ -88,5 +90,5 @@ fi
 echo "Install LaTeX (y/n)?"
 read proceed
 if [ $proceed == "y" ]; then
-    sudo $pm install texlive texlive-pictures
+    sudo $pm install -y texlive texlive-pictures
 fi
