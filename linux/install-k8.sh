@@ -80,3 +80,18 @@ sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
 # --- Install
 sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
 sudo systemctl enable --now kubelet
+
+# ======================================================================================
+# START CLUSTER (MASTER NODE ONLY) 
+# ======================================================================================
+
+# --- Init
+sudo kubeadm init --pod-network-cidr=10.244.0.0/16
+
+# --- Init kubectl conf
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+# --- Container network interface
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
