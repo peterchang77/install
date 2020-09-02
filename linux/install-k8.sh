@@ -12,11 +12,11 @@
 # INSTALL DOCKER 
 # ======================================================================================
 
-# --- Set up repo
+# --- Set up requirements 
 sudo yum install -y yum-utils device-mapper-persistent-data lvm2
-sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
 
-# --- Install
+# --- Install docker
+sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
 sudo yum update -y
 sudo yum install -y containerd.io-1.2.13 docker-ce-19.03.11 docker-ce-cli-19.03.11
 
