@@ -62,3 +62,7 @@
       remote_src: true
       src: "{{ ansible_env.HOME }}/install/linux/.zshrc"
       dest: "{{ ansible_env.HOME }}/.zshrc"
+  - name: Cleaning up install/ dir 
+    file:
+      path: "{{ ansible_env.HOME }}/install"
+      state: absent
