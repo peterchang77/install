@@ -62,6 +62,12 @@
       remote_src: true
       src: "{{ ansible_env.HOME }}/install/linux/.zshrc"
       dest: "{{ ansible_env.HOME }}/.zshrc"
+  - name: Setting zsh as default shell
+    user:
+      name: peter
+      shell: /bin/zsh
+    become: true
+    become_method: sudo
   - name: Cleaning up install/ dir 
     file:
       path: "{{ ansible_env.HOME }}/install"
