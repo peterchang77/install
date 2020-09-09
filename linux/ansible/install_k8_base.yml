@@ -1,4 +1,4 @@
-- hosts: all 
+- hosts: uci-gtx2
   tasks:
   - name: Install requirements 
     yum:
@@ -105,6 +105,8 @@
         gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
         exclude=kubelet kubeadm kubectl
         EOF
+    become: true
+    become_method: sudo
   - name: Set SELinux in permissve mode
     selinux:
       policy: targeted
@@ -115,6 +117,17 @@
     shell: sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
     args:
       warn: false
+    become: true
+    become_method: sudo
+  - name: Disable swap (swapoff -a)
+    shell: swapoff -a
+    become: true
+    become_method: sudo
+  - name: Disable swap (update /etc/fstab)
+    replace:
+      path: /etc/fstab
+      regexp: '^([^#].*?\sswap\s+.*)$'
+      replace: '# \1'
     become: true
     become_method: sudo
   - name: Install kubelet, kubeadm, kubectl 
