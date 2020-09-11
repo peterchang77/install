@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ======================================================================================
-# INSTALL k8 CLUSTER USING kubeadmin
+# INSTALL k8 CLUSTER USING kubeadmin on CentOS 7
 # ======================================================================================
 # 
 # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
@@ -56,6 +56,15 @@ sudo sysctl --system
 # ======================================================================================
 # ENSURE REQUIRED PORTS ARE OPEN 
 # ======================================================================================
+# --- Master
+export PORTS=6443,2379,2380,10250,10251,10252
+sudo iptables -A INPUT -p tcp -m multiport --dports $PORTS -j ACCEPT
+
+# --- Worker
+export PORTS=10250
+sudo iptables -A INPUT -p tcp --dport $PORTS -j ACCEPT
+export PORTS=30000:32767
+sudo iptables -A INPUT -p tcp --dport $PORTS -j ACCEPT
 
 # ======================================================================================
 # INSTALL kubeadm, kubectl, kubelet 
@@ -80,18 +89,3 @@ sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
 # --- Install
 sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
 sudo systemctl enable --now kubelet
-
-# ======================================================================================
-# START CLUSTER (MASTER NODE ONLY) 
-# ======================================================================================
-
-# --- Init
-sudo kubeadm init --apiserver-advertise-address=172.0.0.117 --pod-network-cidr=10.244.0.0/16
-
-# --- Init kubectl conf
-mkdir -p $HOME/.kube
-sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-sudo chown $(id -u):$(id -g) $HOME/.kube/config
-
-# --- Container network interface
-kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml

@@ -1,0 +1,37 @@
+# ======================================================================================
+# INITIALIZE K8 CLUSTER WORKERS
+# ======================================================================================
+#
+# (1) Determine k8 master token
+#
+# $ kubeadm token list
+#
+# (2) Determine k8 master hash
+#
+# $ sudo yum install -y openssl
+# $ openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | \
+#    openssl dgst -sha256 -hex | sed 's/^.* //'
+#
+# (3) Determine k8 master IP address / port
+#
+# (4) Fill in variables in vars 
+#
+# ======================================================================================
+
+- hosts: uci-rtx1
+  vars:
+    k8_host: 
+    k8_port: 
+    k8_token: 
+    k8_hash: 
+  tasks:
+  - name: Enable kubelet 
+    systemd:
+      enabled: yes
+      name: kubelet
+    become: true
+    become_method: sudo
+  - name: Initialize worker 
+    shell: kubeadm join --token {{ k8_token }} {{ k8_host }}:{{ k8_port }} --discovery-token-ca-cert-hash sha256:{{ k8_hash }}
+    become: true
+    become_method: sudo

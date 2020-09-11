@@ -1,5 +1,11 @@
 - hosts: master 
   tasks:
+  - name: Enable kubelet 
+    systemd:
+      enabled: yes
+      name: kubelet
+    become: true
+    become_method: sudo
   - name: Initialize cluster 
     shell: kubeadm init --pod-network-cidr=10.244.0.0/16
     become: true
