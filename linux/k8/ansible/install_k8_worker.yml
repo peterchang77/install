@@ -12,18 +12,22 @@
 # $ openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | \
 #    openssl dgst -sha256 -hex | sed 's/^.* //'
 #
+# $ export K8_HASH=...
+# $ export K8_TOKEN=...
+#
 # (3) Determine k8 master IP address / port
 #
-# (4) Fill in variables in vars 
+# $ export K8_HOST=...
+# $ export K8_PORT=...
 #
 # ======================================================================================
 
-- hosts: uci-rtx1
+- hosts: uci-rtx2
   vars:
-    k8_host: 
-    k8_port: 
-    k8_token: 
-    k8_hash: 
+    k8_host: "{{ lookup('env', 'K8_HOST') }}"
+    k8_port: "{{ lookup('env', 'K8_PORT') }}"
+    k8_token: "{{ lookup('env', 'K8_TOKEN') }}"
+    k8_hash: "{{ lookup('env', 'K8_HASH') }}"
   tasks:
   - name: Enable kubelet 
     systemd:
