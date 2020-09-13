@@ -1,4 +1,4 @@
-- hosts: uci-rtx1
+- hosts: all 
   tasks:
   - name: Install requirements 
     yum:
