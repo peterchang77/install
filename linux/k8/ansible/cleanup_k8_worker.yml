@@ -1,0 +1,32 @@
+- hosts: all 
+  tasks:
+  - name: kubeadm reset
+    shell: "kubeadm reset -f"
+    become: true
+    become_method: sudo
+  - name: Remove /var/lib/cni 
+    file:
+      path: /var/lib/cni 
+      state: absent
+    become: true
+    become_method: sudo
+  - name: Remove /run/flannel 
+    file:
+      path: /run/flannel
+      state: absent
+    become: true
+    become_method: sudo
+  - name: Remove /etc/cni
+    file:
+      path: /etc/cni
+      state: absent
+    become: true
+    become_method: sudo
+  - name: Bring down cni0
+    shell: "ifconfig cni0 down"
+    become: true
+    become_method: sudo
+  - name: Delete bridge cni0 
+    shell: "brctl delbr cni0"
+    become: true
+    become_method: sudo

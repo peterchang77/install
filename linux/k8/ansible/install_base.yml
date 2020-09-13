@@ -68,6 +68,13 @@
       shell: /bin/zsh
     become: true
     become_method: sudo
+  - name: Install nfs
+    yum:
+      name: nfs-utils 
+      state: present
+      update_cache: true
+    become: true
+    become_method: sudo
   - name: Cleaning up install/ dir 
     file:
       path: "{{ ansible_env.HOME }}/install"
