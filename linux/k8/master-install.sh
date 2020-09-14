@@ -17,25 +17,29 @@ sudo yum install -y yum-utils device-mapper-persistent-data lvm2
 
 # --- Install docker
 sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+sudo yum-config-manager --add-repo https://nvidia.github.io/nvidia-docker/$(. /etc/os-release;echo $ID$VERSION_ID)/nvidia-docker.repo
 sudo yum update -y
-sudo yum install -y containerd.io-1.2.13 docker-ce-19.03.11 docker-ce-cli-19.03.11
+sudo yum install -y containerd.io-1.2.13 docker-ce-19.03.11 docker-ce-cli-19.03.11 nvidia-docker2
 
 # --- Set up docker daemon
 sudo mkdir /etc/docker
 echo 'cat > /etc/docker/daemon.json <<EOF
 {
+      "default-runtime": "nvidia",
+
+      "runtimes": {
+        "nvidia": {
+            "path": "/usr/bin/nvidia-container-runtime",
+            "runtimeArgs": []}},
+
       "exec-opts": ["native.cgroupdriver=systemd"],
-        "log-driver": "json-file",
-        "log-opts": {
-            "max-size": "100m"
 
-    },
+      "log-driver": "json-file",
+      "log-opts": {
+            "max-size": "100m"},
+
       "storage-driver": "overlay2",
-      "storage-opts": [
-          "overlay2.override_kernel_check=true"
-
-      ]
-
+      "storage-opts": ["overlay2.override_kernel_check=true"]
 }
 EOF' | sudo -s
 sudo mkdir -p /etc/systemd/system/docker.service.d

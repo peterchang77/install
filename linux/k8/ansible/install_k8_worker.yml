@@ -34,6 +34,36 @@
       name: kubelet
     become: true
     become_method: sudo
+  - name: Reset existing configurations 
+    shell: "kubeadm reset -f"
+    become: true
+    become_method: sudo
+  - name: Remove /var/lib/cni 
+    file:
+      path: /var/lib/cni 
+      state: absent
+    become: true
+    become_method: sudo
+  - name: Remove /run/flannel 
+    file:
+      path: /run/flannel
+      state: absent
+    become: true
+    become_method: sudo
+  - name: Remove /etc/cni
+    file:
+      path: /etc/cni
+      state: absent
+    become: true
+    become_method: sudo
+  - name: Bring down cni0
+    shell: "if [ -z '$(ifconfig | grep cni0)' ]; then ifconfig cni0 down; fi"
+    become: true
+    become_method: sudo
+  - name: Delete bridge cni0 
+    shell: "if [ -z '$(ifconfig | grep cni0)' ]; then brctl delbr cni0; fi"
+    become: true
+    become_method: sudo
   - name: Initialize worker 
     shell: kubeadm join --token {{ k8_token }} {{ k8_host }}:{{ k8_port }} --discovery-token-ca-cert-hash sha256:{{ k8_hash }}
     become: true
