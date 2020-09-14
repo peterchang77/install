@@ -1,4 +1,4 @@
-- hosts: all 
+- hosts: uci-rtx2
   tasks:
   - name: Install requirements 
     yum:
@@ -14,6 +14,10 @@
     shell: /usr/bin/yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
     become: true
     become_method: sudo
+  - name: Add NVIDIA-docker repo 
+    shell: /usr/bin/yum-config-manager --add-repo https://nvidia.github.io/nvidia-docker/$(. /etc/os-release;echo $ID$VERSION_ID)/nvidia-docker.repo
+    become: true
+    become_method: sudo
   - name: Update yum
     yum:
       name: "*"
@@ -26,6 +30,7 @@
       - containerd.io-1.2.13 
       - docker-ce-19.03.11 
       - docker-ce-cli-19.03.11
+      - nvidia-container-toolkit
       state: present
       update_cache: true
     become: true

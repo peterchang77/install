@@ -30,3 +30,5 @@
     become_method: sudo
   - name: Configure container network interface 
     shell: /usr/bin/kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+  - name: Configure NVIDIA GPU device plugin 
+    shell: /usr/bin/kubectl create -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/1.0.0-beta/nvidia-device-plugin.yml
