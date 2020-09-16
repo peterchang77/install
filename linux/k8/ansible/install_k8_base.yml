@@ -117,7 +117,7 @@
         EOF
     become: true
     become_method: sudo
-  - name: Set SELinux in permissve mode
+  - name: Set SELinux in permissive mode
     selinux:
       policy: targeted
       state: permissive

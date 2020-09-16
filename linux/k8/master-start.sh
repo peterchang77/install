@@ -5,7 +5,7 @@
 # ======================================================================================
 
 # --- Init
-sudo kubeadm init --apiserver-advertise-address=172.0.0.117 --pod-network-cidr=10.244.0.0/16
+sudo kubeadm init --apiserver-advertise-address=$K8_HOST --pod-network-cidr=10.244.0.0/16
 
 # --- Init kubectl conf
 mkdir -p $HOME/.kube
