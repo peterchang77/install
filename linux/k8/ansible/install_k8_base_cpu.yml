@@ -1,4 +1,4 @@
-- hosts: all 
+- hosts: cpu 
   tasks:
   - name: Install requirements 
     yum:
@@ -14,10 +14,6 @@
     shell: /usr/bin/yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
     become: true
     become_method: sudo
-  - name: Add NVIDIA-docker repo 
-    shell: /usr/bin/yum-config-manager --add-repo https://nvidia.github.io/nvidia-docker/$(. /etc/os-release;echo $ID$VERSION_ID)/nvidia-docker.repo
-    become: true
-    become_method: sudo
   - name: Update yum
     yum:
       name: "*"
@@ -30,7 +26,6 @@
       - containerd.io-1.2.13 
       - docker-ce-19.03.11 
       - docker-ce-cli-19.03.11
-      - nvidia-docker2
       state: present
       update_cache: true
     become: true
@@ -45,13 +40,6 @@
     shell: |
         cat > /etc/docker/daemon.json <<EOF
         {
-
-              "default-runtime": "nvidia",
-
-              "runtimes": {
-                "nvidia": {
-                    "path": "/usr/bin/nvidia-container-runtime",
-                    "runtimeArgs": []}},
 
               "exec-opts": ["native.cgroupdriver=systemd"],
 
