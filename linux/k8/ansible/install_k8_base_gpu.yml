@@ -1,4 +1,4 @@
-- hosts: gpu 
+- hosts: all 
   tasks:
   - name: Install requirements 
     yum:
@@ -149,5 +149,11 @@
       disable_excludes: kubernetes
       state: present
       update_cache: true
+    become: true
+    become_method: sudo
+  - name: Enable kubelet 
+    systemd:
+      enabled: yes
+      name: kubelet
     become: true
     become_method: sudo

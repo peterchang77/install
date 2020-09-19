@@ -21,21 +21,21 @@
 #
 # ======================================================================================
 
-- hosts: cpu 
+- hosts: all 
   vars:
     k8_host: "{{ lookup('env', 'K8_HOST') }}"
     k8_port: "{{ lookup('env', 'K8_PORT') }}"
     k8_token: "{{ lookup('env', 'K8_TOKEN') }}"
     k8_hash: "{{ lookup('env', 'K8_HASH') }}"
   tasks:
-  - name: Enable kubelet 
-    systemd:
-      enabled: yes
-      name: kubelet
-    become: true
-    become_method: sudo
   - name: Reset existing configurations 
     shell: "kubeadm reset -f"
+    become: true
+    become_method: sudo
+  - name: Stop kubelet 
+    systemd:
+      state: stopped
+      name: kubelet
     become: true
     become_method: sudo
   - name: Remove /var/lib/cni 
@@ -57,11 +57,17 @@
     become: true
     become_method: sudo
   - name: Bring down cni0
-    shell: "if [ $(ifconfig | grep cni0 | wc -l) -eq 1 ]; then ifconfig cni0 down; fi"
+    shell: "if [ $(ifconfig | grep cni0 | wc -l) -eq 1 ]; then ip link set cni0 down; brctl delbr cni0; fi"
     become: true
     become_method: sudo
-  - name: Delete bridge cni0 
-    shell: "if [ $(ifconfig | grep cni0 | wc -l) -eq 1 ]; then brctl delbr cni0; fi"
+  - name: Bring down flannel.1 
+    shell: "if [ $(ifconfig | grep flannel.1 | wc -l) -eq 1 ]; then ip link set flannel.1 down; fi"
+    become: true
+    become_method: sudo
+  - name: Start kubelet 
+    systemd:
+      state: started 
+      name: kubelet
     become: true
     become_method: sudo
   - name: Initialize worker 
