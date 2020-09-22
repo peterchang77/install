@@ -70,6 +70,8 @@ sudo iptables -A INPUT -p tcp --dport $PORTS -j ACCEPT
 export PORTS=30000:32767
 sudo iptables -A INPUT -p tcp --dport $PORTS -j ACCEPT
 
+sudo service firewalld stop
+
 # ======================================================================================
 # INSTALL kubeadm, kubectl, kubelet 
 # ======================================================================================
