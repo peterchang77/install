@@ -8,6 +8,7 @@ COPY vim/colors /root/.vim/colors
 
 # --- System packages 
 RUN apt-get update && apt-get install -y wget curl bzip2 vim silversearcher-ag tmux zsh git zip unzip build-essential && \
+    apt-get install -y net-tools iputils-ping netcat && \
     apt-get install -y default-jre && \
     apt-get install -y ranger caca-utils highlight atool w3m poppler-utils mediainfo && \
     apt-get install -y python3-openslide && \
@@ -44,8 +45,8 @@ RUN apt-get update && apt-get install -y wget curl bzip2 vim silversearcher-ag t
 # --- Clean up
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/wheels
 
-COPY setusers.sh /root/
-COPY .bashrc /root/
+COPY copyusers.py .bashrc /root/
+COPY ./jarvis-bash.sh ./jarvis-env.sh /etc/profile.d/
 
 ENV PATH=/miniconda/bin:$PATH
 ENV TERM=xterm-256color
