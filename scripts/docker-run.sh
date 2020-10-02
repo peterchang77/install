@@ -34,7 +34,7 @@ If desired, alternate locations can be specified using the following flags:
 
 USER OPTIONS:
 
-If the host is a *nix-based OS, users (and passwords) are copied (NOT mounted) into the container:
+If the host is a *nix-based OS, users (and passwords) are copied as read-only files into the container:
 
   /etc/passwd
   /etc/shadow
@@ -109,6 +109,14 @@ while [[ $1 != "" ]]; do
             MOUNT_ETC=$2
             shift
             ;;
+        -e | --entry)
+            JARVIS_ENTRY_SCRIPT="$2"
+            shift
+            ;;
+        -f | --configs)
+            JARVIS_PATH_CONFIGS="$2"
+            shift
+            ;;
         -h | --help)
             usage
             exit
@@ -135,35 +143,24 @@ MOUNT_DATA="$PREFIX$MOUNT_DATA"
 MOUNT_MNT="$PREFIX$MOUNT_MNT"
 MOUNT_ETC="$PREFIX$MOUNT_ETC"
 
-# =======================================================================
-# FUNCTIONS 
-# =======================================================================
-
-copy_users() {
-
-    if [ ! -d "$MOUNT_ETC" ]; then
-        return
-    fi
-
-    if [ ! -d "$HOME/temp/etc" ]; then
-        mkdir "$HOME/temp/etc"
-    fi
-
-    sudo cp $MOUNT_ETC/passwd $HOME/temp/etc
-    sudo cp $MOUNT_ETC/shadow $HOME/temp/etc
-    sudo cp $MOUNT_ETC/group $HOME/temp/etc
-    sudo cp $MOUNT_ETC/gshadow $HOME/temp/etc
-
-}
-
 # ==================================
 # MAIN 
 # ==================================
 
-# --- Copy users
-copy_users
+# --- Temporarily change paths if $MOUNT_HOME is not /home
+if [[ "$MOUNT_HOME" != "/home" ]]; then
+    export JARVIS_PATH=${JARVIS_PATH/$MOUNT_HOME/"/home"}
+    export JARVIS_ENTRY_SCRIPT=${JARVIS_ENTRY_SCRIPT/$MOUNT_HOME/"/home"}
+fi
 
 sudo -E docker run $HARDWARE -it --rm \
     -v $MOUNT_MNT:/mnt:Z -v $MOUNT_HOME:/home:Z -v $MOUNT_DATA:/data:Z \
-    -v $HOME/temp/etc:/root/temp:Z -v $HOME/.Xauthority:/root/.Xauthority:Z \
+    -v $MOUNT_ETC/passwd:/root/etc/passwd:ro \
+    -v $MOUNT_ETC/shadow:/root/etc/shadow:ro \
+    -v $MOUNT_ETC/group:/root/etc/group:ro \
+    -v $MOUNT_ETC/gshadow:/root/etc/gshadow:ro \
+    -v $HOME/.Xauthority:/root/.Xauthority:Z \
+    -e JARVIS_PATH=$JARVIS_PATH \
+    -e JARVIS_PATH_CONFIGS=$JARVIS_PATH_CONFIGS \
+    -e JARVIS_ENTRY_SCRIPT=$JARVIS_ENTRY_SCRIPT \
     --net="host" -e DISPLAY=$DISPLAY --name $NAME peterchang77/$IMAGE:latest $CMD
