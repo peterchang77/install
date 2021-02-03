@@ -34,7 +34,7 @@ If desired, alternate locations can be specified using the following flags:
 
 USER OPTIONS:
 
-If the host is a *nix-based OS, users (and passwords) are copied as read-only files into the container:
+If the host is a *nix-based OS, users (and passwords) are copied (NOT mounted) into the container:
 
   /etc/passwd
   /etc/shadow
@@ -62,6 +62,7 @@ MOUNT_HOME="/home"
 MOUNT_DATA="/data"
 MOUNT_MNT="/mnt"
 MOUNT_ETC="/etc"
+CMD="tmux"
 
 # --- Attempt to infer hardware (GPU or CPU) 
 if ! [ -x "$(command -v nvidia-smi)" ]; then
