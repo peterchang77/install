@@ -97,3 +97,11 @@ alias da="sudo docker attach $1"
 # --- Jarvis
 export JARVIS_PATH="$HOME/jarvis"
 alias jarvis="$JARVIS_PATH/jarvis-core/scripts/jarvis.sh"
+
+# ======================================================================
+# JARVIS | ENV SETUP (MANUAL SOURCE FOR JUPYTER ENV)
+# ======================================================================
+
+if [ -f /etc/profile.d/jarvis-env.sh ]; then
+    source /etc/profile.d/jarvis-env.sh
+fi

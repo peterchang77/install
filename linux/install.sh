@@ -36,11 +36,28 @@ if [ $proceed == "y" ]; then
     sudo $pm install -y vim
     git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
     cp vim/.vimrc ~/.vimrc
+    if [ ! -d "$HOME/.vim" ]; then
+        mkdir "$HOME/.vim"
+    fi
     cp -r ./vim/colors ~/.vim/colors
     vim +PluginInstall qall
     if [ $pm == "apt-get" ]; then
         sudo $pm install -y silversearcher-ag
     fi
+fi
+
+# =============================================================================
+# INSTALL git
+# =============================================================================
+if ! [ -x "$(command -v git)" ]; then
+    sudo $pm install -y git
+    echo "Enter Git email address:"
+    read email
+    echo "Enter Git username:"
+    read username
+    git config --global user.email $email 
+    git config --global user.name $username
+    git config --global credential.helper 'cache --timeout=300'
 fi
 
 # =============================================================================
@@ -68,20 +85,6 @@ echo "Install OpenSSH (y/n)?"
 read proceed
 if [ $proceed == "y" ]; then
     sudo $pm openssh-server 
-fi
-
-# =============================================================================
-# INSTALL git
-# =============================================================================
-if ! [ -x "$(command -v git)" ]; then
-    sudo $pm install -y git
-    echo "Enter Git email address:"
-    read email
-    echo "Enter Git username:"
-    read username
-    git config --global user.email $email 
-    git config --global user.name $username
-    git config --global credential.helper 'cache --timeout=300'
 fi
 
 # =============================================================================
