@@ -84,7 +84,7 @@ fi
 echo "Install OpenSSH (y/n)?"
 read proceed
 if [ $proceed == "y" ]; then
-    sudo $pm openssh-server 
+    sudo $pm install openssh-server 
 fi
 
 # =============================================================================
