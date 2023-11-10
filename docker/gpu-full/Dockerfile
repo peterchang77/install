@@ -1,4 +1,4 @@
-FROM nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04
+FROM nvidia/cuda:11.2.2-cudnn8-runtime-ubuntu20.04
 MAINTAINER Peter Chang <pchang077@gmail.com>
 
 # --- Copy files
@@ -6,12 +6,15 @@ COPY environment.yml .tmux.conf .zshrc vim/.vimrc /root/
 COPY wheels /root/wheels
 COPY vim/colors /root/.vim/colors
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 # --- System packages 
-RUN apt-get update && apt-get install -y wget curl bzip2 vim silversearcher-ag tmux zsh git zip unzip build-essential && \
-    apt-get install -y net-tools iputils-ping netcat && \
+RUN apt-get update && apt-get install -y wget curl bzip2 vim silversearcher-ag tmux zsh git zip unzip build-essential sudo && \
+    apt-get install -y net-tools iputils-ping netcat openssh-server rsync && \
     apt-get install -y default-jre && \
-    apt-get install -y ranger caca-utils highlight atool w3m poppler-utils mediainfo && \
+    apt-get install -y ranger caca-utils highlight atool w3m poppler-utils lm-sensors && \
     apt-get install -y python3-openslide && \
+    curl https://rclone.org/install.sh | bash && \
 
 # --- dcm4che
     wget -O dcm4che.zip https://www.dropbox.com/s/zl7adkprqeebvnh/dcm4che.zip?dl=1 && \
@@ -53,6 +56,7 @@ ENV TERM=xterm-256color
 ENV LANG en_US.UTF-8  
 ENV LANGUAGE en_US:en  
 ENV LC_ALL en_US.UTF-8 
-ENV XDG_RUNTIME_DIR=/tmp/runtime-root
+ENV XDG_RUNTIME_DIR=/tmp
 ENV QT_XKB_CONFIG_ROOT=/usr/share/X11/xkb
 ENV DCM4CHE_HOME=/usr/local/dcm4che
+ENV DEBIAN_FRONTEND=
