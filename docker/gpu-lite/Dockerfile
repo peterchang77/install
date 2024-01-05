@@ -1,4 +1,4 @@
-FROM nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04
+FROM nvidia/cuda:11.2.2-cudnn8-runtime-ubuntu20.04
 MAINTAINER Peter Chang <pchang077@gmail.com>
 
 # --- Copy files
@@ -32,12 +32,12 @@ RUN apt-get update && apt-get install -y wget curl bzip2 vim silversearcher-ag t
 # --- Clean up
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/wheels
 
-COPY setusers.sh /root/
 COPY .bashrc /root/
+COPY ./jarvis-bash.sh ./jarvis-env.sh /etc/profile.d/
 
 ENV PATH=/miniconda/bin:$PATH
 ENV TERM=xterm-256color
 ENV LANG en_US.UTF-8  
 ENV LANGUAGE en_US:en  
 ENV LC_ALL en_US.UTF-8 
-ENV XDG_RUNTIME_DIR=/tmp/runtime-root
+ENV XDG_RUNTIME_DIR=/tmp
