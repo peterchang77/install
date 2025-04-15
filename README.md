@@ -8,20 +8,6 @@ Based on this approach the only *required* steps for preparing a new machine for
 2. Install Docker runtime and Nvidia-container toolkit
 3. Install (pull) required Docker images
 
-(*optional*) Instructions for additional installation of common, useful command-line utilities is provided at the end of this README.md.
-
-## Platform Support
-
-**Important**: At this time, these instructions *only* work for Linux-basd operating systems. Currently, Windows Docker does not support the use of NVIDIA GPU in containers. In addition, Mac OS does not support NVIDIA hardware. 
-
-Instead, to setup an appropriate development environment on non-Linux operating systems, consider the following steps:
-
-1. Install appropriate NVIDIA drivers (if not done already; see information below)
-2. Install CUDA Toolkit 10.1: https://developer.nvidia.com/cuda-toolkit-archive
-3. Install cuDNN 7.6: https://developer.nvidia.com/cudnn
-4. Install Anaconda (Python package manager): https://docs.anaconda.com/anaconda/install/
-5. Install Python dependencies using Anaconda
-
 ### Install dependencies with Conda
 
 There are a total of four different prebuilt environments depending on whether GPU or CPU hardware is available and whether a larger `full` or smaller `lite` installation is preferred. See information about [Pulling Docker Images](#pulling-docker-images) below for further details.
@@ -52,8 +38,8 @@ $ nvidia-smi
 If one (or multiple) device(s) are listed, then drivers are installed already. If you are using a Debian-based OS (Ubuntu), the following commands will attempt to automatically identify and install the required packages:
 
 ```bash
-$ ubuntu-drivers devices
-$ sudo ubuntu-drivers autoinstall
+$ sudo ubuntu-drivers list 
+$ sudo ubuntu-drivers install
 ```
 
 If you are using another Linux-based OS, please consult the NVIDIA website above.
@@ -64,17 +50,16 @@ A Docker container image is a lightweight, standalone, executable package of sof
 
 More specifically, several Docker images (details below) have been prepared (pre-installed) with a number of data science tools relevant to medical imaging. Using these Docker images will provide you full access to a Ubuntu-based operating system loaded with Python, Tensorflow and the required dependencies (*regardless* of your native OS). To use these Docker images, the following must be installed:
 
-* Docker runtime engine (baseline software to run containers): https://docs.docker.com/engine/install/ 
-* NVIDIA-Container toolkit (enables NVIDIA GPU support for containers): https://github.com/NVIDIA/nvidia-docker
+* Docker runtime engine (baseline software to run containers): https://docs.docker.com/engine/install
+* NVIDIA-Container toolkit (enables NVIDIA GPU support for containers): https://github.com/NVIDIA/nvidia-container-toolkit 
 
 Note that the use of the NVIDIA-Container toolkit decouples the underlying GPU and driver combination (that you just installed above) from the CUDA and cuDNN library versions utilized in the Docker container, so that this container should work "out of the box" as long as the underlying NVIDIA GPU drivers are configured properly.
 
 ### Linux
 
-For Debian and CentOS based Linux systems, Bash scripts for installing Docker runtime, NVIDIA-container toolkit and Docker Compose (optional) are provided in the `/linux/` subdirectory of this repository:
+For Debian-based Linux systems, Bash scripts for installing Docker runtime, NVIDIA-container toolkit and Docker Compose (optional) are provided in the `/linux/` subdirectory of this repository:
 
-* `linux/install-docker-debian.sh` 
-* `linux/install-docker-centos.sh` 
+* `linux/install-docker.sh` 
 
 Simply run the scripts and follow the prompts. If there is an error, recommend manual installation via the official Docker links above.
 
