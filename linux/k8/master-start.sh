@@ -4,8 +4,11 @@
 # START CLUSTER (MASTER NODE ONLY) 
 # ======================================================================================
 
+export K8_HOST=$(hostname)
+export K8_PORT=6443
+
 # --- Init
-sudo kubeadm init --apiserver-advertise-address=$K8_HOST --pod-network-cidr=10.244.0.0/16
+sudo kubeadm init --ignore-preflight-errors=all --pod-network-cidr=10.244.0.0/16
 
 # --- Init kubectl conf
 mkdir -p $HOME/.kube

@@ -87,6 +87,12 @@ if [ $proceed == "y" ]; then
     cp .zshrc ~/.zshrc
 fi
 
+echo "Change default shell to zsh [NOTE: must be logged in as user] (y/n)?"
+read proceed
+if [ $proceed == "y" ]; then
+    chsh -s $(which zsh)
+fi
+
 # =============================================================================
 # INSTALL sshd
 # =============================================================================
