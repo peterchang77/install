@@ -8,7 +8,6 @@
 #
 # (2) Determine k8 master hash
 #
-# $ sudo yum install -y openssl
 # $ openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
 #
 # $ export K8_HASH=...
