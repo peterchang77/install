@@ -30,7 +30,7 @@ echo "Using package-manager: $pm"
 # =============================================================================
 # INSTALL basic updates 
 # =============================================================================
-echo "Update package manager (y/n)?"
+echo -n "Update package manager (y/n)? "
 read proceed
 if [ $proceed == "y" ]; then
     sudo $pm update 
@@ -39,7 +39,7 @@ fi
 # =============================================================================
 # INSTALL Vundle, vim configuration and plugins
 # =============================================================================
-echo "Install vim and plugins (y/n)?"
+echo -n "Install vim and plugins (y/n)? "
 read proceed
 if [ $proceed == "y" ]; then
     sudo $pm install -y vim
@@ -60,9 +60,9 @@ fi
 # =============================================================================
 if ! [ -x "$(command -v git)" ]; then
     sudo $pm install -y git
-    echo "Enter Git email address:"
+    echo -n "Enter Git email address: "
     read email
-    echo "Enter Git username:"
+    echo -n "Enter Git username: "
     read username
     git config --global user.email $email 
     git config --global user.name $username
@@ -72,14 +72,14 @@ fi
 # =============================================================================
 # INSTALL tmux and zsh
 # =============================================================================
-echo "Install tmux (y/n)?"
+echo -n "Install tmux (y/n)? "
 read proceed
 if [ $proceed == "y" ]; then
     sudo $pm install -y tmux
     cp .tmux.conf ~/.tmux.conf
 fi
 
-echo "Install zsh (y/n)?"
+echo -n "Install zsh (y/n)? "
 read proceed
 if [ $proceed == "y" ]; then
     sudo $pm install -y zsh
@@ -87,7 +87,7 @@ if [ $proceed == "y" ]; then
     cp .zshrc ~/.zshrc
 fi
 
-echo "Change default shell to zsh [NOTE: must be logged in as user] (y/n)?"
+echo -n "Change default shell to zsh [NOTE: must be logged in as user] (y/n)? "
 read proceed
 if [ $proceed == "y" ]; then
     chsh -s $(which zsh)
@@ -96,7 +96,7 @@ fi
 # =============================================================================
 # INSTALL sshd
 # =============================================================================
-echo "Install OpenSSH (y/n)?"
+echo -n "Install OpenSSH (y/n)? "
 read proceed
 if [ $proceed == "y" ]; then
     sudo $pm install openssh-server 
@@ -105,7 +105,7 @@ fi
 # =============================================================================
 # INSTALL LaTex
 # =============================================================================
-echo "Install LaTeX (y/n)?"
+echo -n "Install LaTeX (y/n)? "
 read proceed
 if [ $proceed == "y" ]; then
     sudo $pm install -y texlive texlive-pictures
