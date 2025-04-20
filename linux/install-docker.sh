@@ -25,7 +25,7 @@
 # =======================================================
 # INSTALL Docker
 # =======================================================
-echo "Install Docker runtime (y/n)?"
+echo -n "Install Docker runtime (y/n)? "
 read proceed
 if [ $proceed == "y" ]; then
 
@@ -52,7 +52,7 @@ fi
 # =======================================================
 # INSTALL NVIDIA-Container Toolkit 
 # =======================================================
-echo "Install NVIDIA-Container Toolkit (y/n)?"
+echo -n "Install NVIDIA-Container Toolkit (y/n)? "
 read proceed
 if [ $proceed == "y" ]; then
 
@@ -73,7 +73,7 @@ fi
 # =======================================================
 # INSTALL Docker-compose
 # =======================================================
-echo "Install Docker-compose (y/n)?"
+echo -n "Install Docker-compose (y/n)? "
 read proceed
 if [ $proceed == "y" ]; then
     sudo apt-get install docker-compose-plugin
