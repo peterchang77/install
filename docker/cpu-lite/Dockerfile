@@ -1,4 +1,4 @@
-FROM nvidia/cuda:11.2.2-cudnn8-runtime-ubuntu20.04
+FROM ubuntu:24.04 
 MAINTAINER Peter Chang <pchang077@gmail.com>
 
 # --- Copy files
@@ -25,6 +25,7 @@ RUN apt-get update && apt-get install -y wget curl bzip2 vim silversearcher-ag t
     rm Miniconda3-latest-Linux-x86_64.sh && \
     /miniconda/bin/conda env create -f /root/environment.yml && \
     for whl in $(find /root/wheels/*.whl); do /miniconda/envs/jarvis/bin/pip install $whl; done && \
+    /miniconda/bin/conda clean --all && \
 
 # --- Clear NVIDIA cache (otherwise must run as root)
     rm -rf ~/.nv/ && \
