@@ -95,7 +95,7 @@ alias ds="sudo docker ps -a"
 alias da="sudo docker attach $1"
 
 # --- Jarvis
-export JARVIS_PATH="$HOME/jarvis"
+export JARVIS_PATH="/mnt/nfs-fs2/home/caidm/jarvis"
 alias jarvis="$JARVIS_PATH/jarvis-core/scripts/jarvis.sh"
 
 # ======================================================================

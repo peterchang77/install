@@ -68,6 +68,12 @@ if [ $proceed == "y" ]; then
     # --- Install
     sudo apt-get install -y nvidia-container-toolkit
 
+    # --- Add no-cgroups = false
+    sudo sed -i '/no-cgroups/s/^#//g' /etc/nvidia-container-runtime/config.toml
+
+    # --- Restart docker
+    sudo systemctl restart docker
+
 fi
 
 # =======================================================
