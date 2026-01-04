@@ -3,41 +3,6 @@
   # =======================================================
   # Stage 1: Install Docker with NVIDIA GPU Support
   # =======================================================
-  - name: Ensure Docker repository file is absent
-    ansible.builtin.file:
-      path: /etc/apt/sources.list.d/docker.list
-      state: absent
-    become: true
-
-  - name: Ensure Docker keyring is absent (clean start)
-    ansible.builtin.file:
-      path: /etc/apt/keyrings/docker.asc
-      state: absent
-    become: true
-
-  - name: Ensure NVIDIA repository file is absent
-    ansible.builtin.file:
-      path: /etc/apt/sources.list.d/nvidia-container-toolkit.list
-      state: absent
-    become: true
-
-  - name: Force cleanup of apt lists and cache
-    shell: |
-      rm -rf /var/lib/apt/lists/*
-      apt-get clean
-    become: true
-    ignore_errors: true
-
-  - name: Debug - Check for any remaining docker references
-    shell: grep -r "docker" /etc/apt/ || echo "Clean"
-    register: grep_check
-    changed_when: false
-    become: true
-
-  - name: Debug - Print grep result
-    debug:
-      var: grep_check.stdout
-
   - name: Install prerequisites
     apt:
       name:
@@ -55,19 +20,24 @@
       mode: '0755'
     become: true
 
-  - name: Check if Docker GPG key exists
-    stat:
-      path: /etc/apt/keyrings/docker.asc
-    register: docker_gpg_check
+  - name: Download Docker GPG key (Armor)
+    ansible.builtin.get_url:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      dest: /tmp/docker.asc
+      mode: '0644'
+      force: yes
+    become: true
 
-  - name: Fetch Docker GPG key
-    shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.asc
-    when: not docker_gpg_check.stat.exists
+  - name: Dearmor Docker GPG key
+    shell: |
+      gpg --dearmor -o /etc/apt/keyrings/docker.gpg /tmp/docker.asc
+    args:
+      creates: /etc/apt/keyrings/docker.gpg
     become: true
 
   - name: Set Docker GPG key permissions
     ansible.builtin.file:
-      path: /etc/apt/keyrings/docker.asc
+      path: /etc/apt/keyrings/docker.gpg
       mode: '0644'
     become: true
 
@@ -84,7 +54,7 @@
   - name: Add Docker repository
     ansible.builtin.lineinfile:
       path: /etc/apt/sources.list.d/docker.list
-      line: "deb [arch={{ system_arch.stdout }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ubuntu_codename.stdout }} stable"
+      line: "deb [arch={{ system_arch.stdout }} signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu {{ ubuntu_codename.stdout }} stable"
       state: present
       create: yes
     become: true
@@ -142,8 +112,25 @@
       state: present
     become: true
 
-  - name: Add NVIDIA Container Toolkit repository GPG key
-    shell: curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+  - name: Download NVIDIA GPG key (Armor)
+    ansible.builtin.get_url:
+      url: https://nvidia.github.io/libnvidia-container/gpgkey
+      dest: /tmp/nvidia.asc
+      mode: '0644'
+      force: yes
+    become: true
+
+  - name: Dearmor NVIDIA GPG key
+    shell: |
+      gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg /tmp/nvidia.asc
+    args:
+      creates: /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+    become: true
+
+  - name: Set NVIDIA GPG key permissions
+    ansible.builtin.file:
+      path: /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+      mode: '0644'
     become: true
 
   - name: Add NVIDIA Container Toolkit repository
@@ -269,9 +256,19 @@
       mode: '0755'
     become: true
 
-  - name: Download Kubernetes GPG signing key
-    shell: curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-    when: not k8s_gpg_check.stat.exists
+  - name: Download Kubernetes GPG key (Armor)
+    ansible.builtin.get_url:
+      url: https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key
+      dest: /tmp/k8s.asc
+      mode: '0644'
+      force: yes
+    become: true
+
+  - name: Dearmor Kubernetes GPG key
+    shell: |
+      gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg /tmp/k8s.asc
+    args:
+      creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
     become: true
 
   - name: Set Kubernetes GPG key permissions
