@@ -1,159 +1,275 @@
-- hosts: all 
+- hosts: all
   tasks:
-  - name: Install requirements 
-    yum:
+  # =======================================================
+  # Stage 1: Install Docker with NVIDIA GPU Support
+  # =======================================================
+  - name: Install prerequisites
+    apt:
       name:
-      - yum-utils
-      - device-mapper-persistent-data
-      - lvm2 
+      - ca-certificates
+      - curl
+      - gnupg
       state: present
       update_cache: true
     become: true
-    become_method: sudo
-  - name: Add Docker repo
-    shell: /usr/bin/yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+  - name: Create Docker GPG keyring directory
+    ansible.builtin.file:
+      path: /etc/apt/keyrings
+      state: directory
+      mode: '0755'
     become: true
-    become_method: sudo
-  - name: Add NVIDIA-docker repo 
-    shell: /usr/bin/yum-config-manager --add-repo https://nvidia.github.io/nvidia-docker/$(. /etc/os-release;echo $ID$VERSION_ID)/nvidia-docker.repo
+
+  - name: Check if Docker GPG key exists
+    stat:
+      path: /etc/apt/keyrings/docker.asc
+    register: docker_gpg_check
+
+  - name: Fetch Docker GPG key
+    shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.asc
+    when: not docker_gpg_check.stat.exists
     become: true
-    become_method: sudo
-  - name: Update yum
-    yum:
-      name: "*"
-      state: latest 
+
+  - name: Set Docker GPG key permissions
+    ansible.builtin.file:
+      path: /etc/apt/keyrings/docker.asc
+      mode: a+r
     become: true
-    become_method: sudo
-  - name: Install Docker 
-    yum:
-      name:
-      - containerd.io-1.2.13 
-      - docker-ce-19.03.11 
-      - docker-ce-cli-19.03.11
-      - nvidia-docker2
+
+  - name: Get Ubuntu version codename
+    shell: . /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}"
+    register: ubuntu_codename
+    changed_when: false
+
+  - name: Get system architecture
+    shell: dpkg --print-architecture
+    register: system_arch
+    changed_when: false
+
+  - name: Add Docker repository
+    ansible.builtin.lineinfile:
+      path: /etc/apt/sources.list.d/docker.list
+      line: "deb [arch={{ system_arch.stdout }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ubuntu_codename.stdout }} stable"
       state: present
+      create: yes
+    become: true
+
+  - name: Update apt cache
+    apt:
       update_cache: true
     become: true
-    become_method: sudo
-  - name: Configure Docker daemon (make /etc/docker)
-    file:
-      path: /etc/docker
-      state: directory
+
+  - name: Install Docker and containerd
+    apt:
+      name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+      state: present
     become: true
-    become_method: sudo
-  - name: Configure Docker daemon (creating daemon.json) 
-    shell: |
-        cat > /etc/docker/daemon.json <<EOF
-        {
 
-              "default-runtime": "nvidia",
-
-              "runtimes": {
-                "nvidia": {
-                    "path": "/usr/bin/nvidia-container-runtime",
-                    "runtimeArgs": []}},
-
-              "exec-opts": ["native.cgroupdriver=systemd"],
-
-              "log-driver": "json-file",
-              "log-opts": {
-                    "max-size": "100m"},
-
-              "storage-driver": "overlay2",
-              "storage-opts": ["overlay2.override_kernel_check=true"]
-
-        }
-        EOF
+  - name: Configure containerd - comment out disabled_plugins
+    ansible.builtin.lineinfile:
+      path: /etc/containerd/config.toml
+      regexp: 'disabled_plugins = \["cri"\]'
+      line: '# disabled_plugins = ["cri"]'
+      state: present
+      create: yes
     become: true
-    become_method: sudo
-  - name: Configure Docker daemon (creating docker.service.d)
-    file:
-      path: /etc/systemd/system/docker.service.d
-      state: directory
+
+  - name: Configure containerd - add systemd cgroup
+    ansible.builtin.blockinfile:
+      path: /etc/containerd/config.toml
+      block: |
+        [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+        [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
+          SystemdCgroup = true
+      state: present
     become: true
-    become_method: sudo
-  - name: Configure Docker daemon (restarting daemons)
+
+  - name: Restart containerd
     systemd:
-      daemon_reload: true
+      name: containerd
       state: restarted
-      name: docker
+      daemon_reload: true
     become: true
-    become_method: sudo
-  - name: Configure Docker daemon (enabling daemons)
-    systemd:
-      enabled: yes
-      name: docker
-    become: true
-    become_method: sudo
-  - name: Load br_netfilter kernel module 
-    modprobe:
-      name: br_netfilter
+
+  - name: Install NVIDIA Container Toolkit prerequisites
+    apt:
+      name:
+      - curl
       state: present
     become: true
-    become_method: sudo
-  - name: Update k8s.conf for net.bridge 
-    shell: |
-        cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
-        net.bridge.bridge-nf-call-ip6tables = 1
-        net.bridge.bridge-nf-call-iptables = 1
-        EOF
+
+  - name: Add NVIDIA Container Toolkit repository GPG key
+    shell: curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
     become: true
-    become_method: sudo
-  - name: Update sysctl.conf
+
+  - name: Add NVIDIA Container Toolkit repository
+    shell: |
+      curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
+      sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+      sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+    become: true
+
+  - name: Update apt cache for NVIDIA repo
+    apt:
+      update_cache: true
+    become: true
+
+  - name: Install NVIDIA Container Toolkit
+    apt:
+      name:
+      - nvidia-container-toolkit
+      - nvidia-container-toolkit-base
+      - libnvidia-container-tools
+      - libnvidia-container1
+      state: present
+    become: true
+
+  - name: Configure NVIDIA runtime for Docker
+    shell: nvidia-ctk runtime configure --runtime=docker
+    become: true
+
+  - name: Enable no-cgroups in NVIDIA config
+    ansible.builtin.lineinfile:
+      path: /etc/nvidia-container-runtime/config.toml
+      regexp: '^#?no-cgroups'
+      line: 'no-cgroups = false'
+      state: present
+    become: true
+
+  - name: Configure Docker daemon for systemd cgroup
+    copy:
+      dest: /etc/docker/daemon.json
+      content: |
+        {
+          "exec-opts": ["native.cgroupdriver=systemd"],
+          "log-driver": "json-file",
+          "log-opts": {
+            "max-size": "100m"
+          },
+          "storage-driver": "overlay2"
+        }
+    become: true
+
+  - name: Start and enable Docker
+    systemd:
+      name: docker
+      state: started
+      enabled: yes
+      daemon_reload: true
+    become: true
+
+  # =======================================================
+  # Stage 2: Install Kubernetes
+  # =======================================================
+  - name: Load kernel modules for K8s
+    community.general.modprobe:
+      name: "{{ item }}"
+      state: present
+    loop:
+      - overlay
+      - br_netfilter
+    become: true
+
+  - name: Configure kernel modules to load on boot
+    ansible.builtin.lineinfile:
+      path: /etc/modules-load.d/k8s.conf
+      line: "{{ item }}"
+      state: present
+      create: yes
+    loop:
+      - overlay
+      - br_netfilter
+    become: true
+
+  - name: Configure sysctl parameters for K8s
+    ansible.builtin.lineinfile:
+      path: /etc/sysctl.d/k8s.conf
+      line: "{{ item }}"
+      state: present
+      create: yes
+    loop:
+      - "net.bridge.bridge-nf-call-iptables = 1"
+      - "net.bridge.bridge-nf-call-ip6tables = 1"
+      - "net.ipv4.ip_forward = 1"
+    become: true
+
+  - name: Apply sysctl parameters
     shell: sysctl --system
     become: true
-    become_method: sudo
-  - name: Add k8 repo 
-    shell: |
-        cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
-        [kubernetes]
-        name=Kubernetes
-        baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
-        enabled=1
-        gpgcheck=1
-        repo_gpgcheck=1
-        gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
-        exclude=kubelet kubeadm kubectl
-        EOF
+
+  - name: Install packages for Kubernetes apt repository
+    apt:
+      name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gpg
+      state: present
     become: true
-    become_method: sudo
-  - name: Set SELinux in permissive mode
-    selinux:
-      policy: targeted
-      state: permissive
+
+  - name: Create Kubernetes GPG keyring directory
+    ansible.builtin.file:
+      path: /etc/apt/keyrings
+      state: directory
+      mode: '0755'
     become: true
-    become_method: sudo
-  - name: Set SELinux permissive (/etc/selinux/config)
-    shell: sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
-    args:
-      warn: false
+
+  - name: Check if Kubernetes GPG key exists
+    stat:
+      path: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    register: k8s_gpg_check
+
+  - name: Download Kubernetes GPG signing key
+    shell: curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    when: not k8s_gpg_check.stat.exists
     become: true
-    become_method: sudo
-  - name: Disable swap (swapoff -a)
+
+  - name: Add Kubernetes repository
+    ansible.builtin.lineinfile:
+      path: /etc/apt/sources.list.d/kubernetes.list
+      line: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /"
+      state: present
+      create: yes
+    become: true
+
+  - name: Update apt cache for Kubernetes
+    apt:
+      update_cache: true
+    become: true
+
+  - name: Disable swap
     shell: swapoff -a
     become: true
-    become_method: sudo
-  - name: Disable swap (update /etc/fstab)
-    replace:
+
+  - name: Disable swap in /etc/fstab
+    ansible.builtin.replace:
       path: /etc/fstab
       regexp: '^([^#].*?\sswap\s+.*)$'
       replace: '# \1'
     become: true
-    become_method: sudo
-  - name: Install kubelet, kubeadm, kubectl 
-    yum:
+
+  - name: Install Kubernetes packages
+    apt:
       name:
-      - kubelet 
-      - kubeadm 
-      - kubectl 
-      disable_excludes: kubernetes
+      - kubelet
+      - kubeadm
+      - kubectl
       state: present
-      update_cache: true
     become: true
-    become_method: sudo
-  - name: Enable kubelet 
+
+  - name: Hold Kubernetes packages to prevent auto-upgrade
+    shell: apt-mark hold kubelet kubeadm kubectl
+    become: true
+
+  - name: Start and enable kubelet
     systemd:
-      enabled: yes
       name: kubelet
+      state: started
+      enabled: yes
+      daemon_reload: true
     become: true
-    become_method: sudo

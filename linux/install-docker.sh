@@ -82,12 +82,3 @@ if [ $proceed == "y" ]; then
     sudo systemctl restart docker
 
 fi
-
-# =======================================================
-# INSTALL Docker-compose
-# =======================================================
-echo -n "Install Docker-compose (y/n)? "
-read proceed
-if [ $proceed == "y" ]; then
-    sudo apt-get install docker-compose-plugin
-fi

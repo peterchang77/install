@@ -1,8 +1,8 @@
 - hosts: all 
   tasks:
-  - name: Install git 
-    yum:
-      name: git 
+  - name: Install git
+    apt:
+      name: git
       state: present
       update_cache: true
     become: true
@@ -11,9 +11,9 @@
     git:
       repo: https://github.com/peterchang77/install.git
       dest: "{{ ansible_env.HOME }}/install"
-  - name: Install vim 
-    yum:
-      name: vim 
+  - name: Install vim
+    apt:
+      name: vim
       state: present
       update_cache: true
     become: true
@@ -35,7 +35,7 @@
   - name: Install vim plugins
     shell: vim +'PlugInstall --sync' +qall &> /dev/null < /dev/tty
   - name: Install tmux
-    yum:
+    apt:
       name: tmux
       state: present
       update_cache: true
@@ -46,8 +46,8 @@
       remote_src: true
       src: "{{ ansible_env.HOME }}/install/linux/.tmux.conf"
       dest: "{{ ansible_env.HOME }}/.tmux.conf"
-  - name: Install zsh 
-    yum:
+  - name: Install zsh
+    apt:
       name: zsh
       state: present
       update_cache: true
@@ -69,8 +69,8 @@
     become: true
     become_method: sudo
   - name: Install nfs
-    yum:
-      name: nfs-utils 
+    apt:
+      name: nfs-common
       state: present
       update_cache: true
     become: true
