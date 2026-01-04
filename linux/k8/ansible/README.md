@@ -8,6 +8,8 @@ This Ansible playbook (`install_k8_main.yml`) installs a complete Kubernetes clu
 - Ansible installed on control node
 - SSH access to target host(s) with sudo privileges
 
+**Important**: Recommend identifying most recent version of K8 and updating scripts before running.
+
 ## Major Steps
 
 ### Stage 1: Docker with NVIDIA GPU Support

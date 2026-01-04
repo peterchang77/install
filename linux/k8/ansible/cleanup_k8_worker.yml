@@ -10,15 +10,15 @@
       name: kubelet
     become: true
     become_method: sudo
-  - name: Remove /var/lib/cni 
+  - name: Remove /var/lib/cni
     file:
-      path: /var/lib/cni 
+      path: /var/lib/cni
       state: absent
     become: true
     become_method: sudo
-  - name: Remove /run/flannel 
+  - name: Remove /var/lib/calico
     file:
-      path: /run/flannel
+      path: /var/lib/calico
       state: absent
     become: true
     become_method: sudo
@@ -32,7 +32,7 @@
     shell: "if ip link show cni0 >/dev/null 2>&1; then ip link set cni0 down; ip link delete cni0; fi"
     become: true
     become_method: sudo
-  - name: Bring down flannel.1
-    shell: "if ip link show flannel.1 >/dev/null 2>&1; then ip link set flannel.1 down; fi"
+  - name: Bring down tunl0 (Calico)
+    shell: "if ip link show tunl0 >/dev/null 2>&1; then ip link set tunl0 down; fi"
     become: true
     become_method: sudo
