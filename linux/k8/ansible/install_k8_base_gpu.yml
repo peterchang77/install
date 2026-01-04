@@ -70,6 +70,10 @@
       state: present
     become: true
 
+  - name: Generate default containerd config
+    shell: mkdir -p /etc/containerd && containerd config default > /etc/containerd/config.toml
+    become: true
+
   - name: Configure containerd - comment out disabled_plugins
     ansible.builtin.lineinfile:
       path: /etc/containerd/config.toml
@@ -129,18 +133,6 @@
       state: present
     become: true
 
-  - name: Configure NVIDIA runtime for Docker
-    shell: nvidia-ctk runtime configure --runtime=docker
-    become: true
-
-  - name: Enable no-cgroups in NVIDIA config
-    ansible.builtin.lineinfile:
-      path: /etc/nvidia-container-runtime/config.toml
-      regexp: '^#?no-cgroups'
-      line: 'no-cgroups = false'
-      state: present
-    become: true
-
   - name: Configure Docker daemon for systemd cgroup
     copy:
       dest: /etc/docker/daemon.json
@@ -153,6 +145,29 @@
           },
           "storage-driver": "overlay2"
         }
+    become: true
+
+  - name: Configure NVIDIA runtime for Docker
+    shell: nvidia-ctk runtime configure --runtime=docker
+    become: true
+
+  - name: Configure NVIDIA runtime for containerd
+    shell: nvidia-ctk runtime configure --runtime=containerd
+    become: true
+
+  - name: Enable no-cgroups in NVIDIA config
+    ansible.builtin.lineinfile:
+      path: /etc/nvidia-container-runtime/config.toml
+      regexp: '^#?no-cgroups'
+      line: 'no-cgroups = false'
+      state: present
+    become: true
+
+  - name: Restart containerd to apply NVIDIA config
+    systemd:
+      name: containerd
+      state: restarted
+      daemon_reload: true
     become: true
 
   - name: Start and enable Docker
