@@ -1,8 +1,26 @@
-- hosts: uci-rtx1 
+- hosts: all 
   tasks:
   # =======================================================
   # Stage 1: Install Docker with NVIDIA GPU Support
   # =======================================================
+  - name: Ensure Docker repository file is absent
+    ansible.builtin.file:
+      path: /etc/apt/sources.list.d/docker.list
+      state: absent
+    become: true
+
+  - name: Ensure Docker keyring is absent (clean start)
+    ansible.builtin.file:
+      path: /etc/apt/keyrings/docker.gpg
+      state: absent
+    become: true
+
+  - name: Ensure NVIDIA repository file is absent
+    ansible.builtin.file:
+      path: /etc/apt/sources.list.d/nvidia-container-toolkit.list
+      state: absent
+    become: true
+
   - name: Install prerequisites
     apt:
       name:
@@ -88,14 +106,11 @@
       create: yes
     become: true
 
-  - name: Configure containerd - add systemd cgroup
-    ansible.builtin.blockinfile:
+  - name: Configure containerd - set SystemdCgroup = true
+    ansible.builtin.replace:
       path: /etc/containerd/config.toml
-      block: |
-        [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
-        [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
-          SystemdCgroup = true
-      state: present
+      regexp: 'SystemdCgroup = false'
+      replace: 'SystemdCgroup = true'
     become: true
 
   - name: Restart containerd
