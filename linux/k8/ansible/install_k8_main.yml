@@ -224,12 +224,18 @@
       daemon_reload: true
     become: true
 
-  - name: Start and enable Docker
+  - name: Restart Docker daemon to apply NVIDIA runtime configuration
+    systemd:
+      name: docker
+      state: restarted
+      daemon_reload: true
+    become: true
+
+  - name: Ensure Docker is started and enabled
     systemd:
       name: docker
       state: started
       enabled: yes
-      daemon_reload: true
     become: true
 
   # =======================================================
