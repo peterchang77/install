@@ -1,8 +1,43 @@
-- hosts: all
+- hosts: uci-rtx1 
   tasks:
   # =======================================================
   # Stage 1: Install Docker with NVIDIA GPU Support
   # =======================================================
+  - name: Ensure Docker repository file is absent
+    ansible.builtin.file:
+      path: /etc/apt/sources.list.d/docker.list
+      state: absent
+    become: true
+
+  - name: Ensure Docker keyring is absent (clean start)
+    ansible.builtin.file:
+      path: /etc/apt/keyrings/docker.asc
+      state: absent
+    become: true
+
+  - name: Ensure NVIDIA repository file is absent
+    ansible.builtin.file:
+      path: /etc/apt/sources.list.d/nvidia-container-toolkit.list
+      state: absent
+    become: true
+
+  - name: Force cleanup of apt lists and cache
+    shell: |
+      rm -rf /var/lib/apt/lists/*
+      apt-get clean
+    become: true
+    ignore_errors: true
+
+  - name: Debug - Check for any remaining docker references
+    shell: grep -r "docker" /etc/apt/ || echo "Clean"
+    register: grep_check
+    changed_when: false
+    become: true
+
+  - name: Debug - Print grep result
+    debug:
+      var: grep_check.stdout
+
   - name: Install prerequisites
     apt:
       name:
@@ -26,14 +61,14 @@
     register: docker_gpg_check
 
   - name: Fetch Docker GPG key
-    shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.asc
+    shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.asc
     when: not docker_gpg_check.stat.exists
     become: true
 
   - name: Set Docker GPG key permissions
     ansible.builtin.file:
       path: /etc/apt/keyrings/docker.asc
-      mode: a+r
+      mode: '0644'
     become: true
 
   - name: Get Ubuntu version codename
@@ -108,14 +143,14 @@
     become: true
 
   - name: Add NVIDIA Container Toolkit repository GPG key
-    shell: curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+    shell: curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
     become: true
 
   - name: Add NVIDIA Container Toolkit repository
     shell: |
       curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
       sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
-      sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+      tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
     become: true
 
   - name: Update apt cache for NVIDIA repo
@@ -234,14 +269,15 @@
       mode: '0755'
     become: true
 
-  - name: Check if Kubernetes GPG key exists
-    stat:
-      path: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-    register: k8s_gpg_check
-
   - name: Download Kubernetes GPG signing key
-    shell: curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    shell: curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
     when: not k8s_gpg_check.stat.exists
+    become: true
+
+  - name: Set Kubernetes GPG key permissions
+    ansible.builtin.file:
+      path: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+      mode: '0644'
     become: true
 
   - name: Add Kubernetes repository
