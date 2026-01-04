@@ -56,11 +56,11 @@
     become: true
     become_method: sudo
   - name: Bring down cni0
-    shell: "if [ $(ifconfig | grep cni0 | wc -l) -eq 1 ]; then ip link set cni0 down; brctl delbr cni0; fi"
+    shell: "if ip link show cni0 >/dev/null 2>&1; then ip link set cni0 down; ip link delete cni0; fi"
     become: true
     become_method: sudo
-  - name: Bring down flannel.1 
-    shell: "if [ $(ifconfig | grep flannel.1 | wc -l) -eq 1 ]; then ip link set flannel.1 down; fi"
+  - name: Bring down flannel.1
+    shell: "if ip link show flannel.1 >/dev/null 2>&1; then ip link set flannel.1 down; fi"
     become: true
     become_method: sudo
   - name: Start kubelet 

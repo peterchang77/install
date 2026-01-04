@@ -1,7 +1,7 @@
 - hosts: all 
   tasks:
   # =======================================================
-  # Stage 1: Install Docker with NVIDIA GPU Support
+  # Stage 0: Remove all old repo files and keys 
   # =======================================================
   - name: Ensure Docker repository file is absent
     ansible.builtin.file:
@@ -21,6 +21,27 @@
       state: absent
     become: true
 
+  - name: Ensure NVIDIA keyring is absent (clean start)
+    ansible.builtin.file:
+      path: /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+      state: absent
+    become: true
+
+  - name: Ensure Kubernetes repository file is absent
+    ansible.builtin.file:
+      path: /etc/apt/sources.list.d/kubernetes.list
+      state: absent
+    become: true
+
+  - name: Ensure Kubernetes keyring is absent (clean start)
+    ansible.builtin.file:
+      path: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+      state: absent
+    become: true
+
+  # =======================================================
+  # Stage 1: Install Docker with NVIDIA GPU Support
+  # =======================================================
   - name: Install prerequisites
     apt:
       name:
@@ -49,8 +70,6 @@
   - name: Dearmor Docker GPG key
     shell: |
       gpg --dearmor -o /etc/apt/keyrings/docker.gpg /tmp/docker.asc
-    args:
-      creates: /etc/apt/keyrings/docker.gpg
     become: true
 
   - name: Set Docker GPG key permissions
@@ -138,8 +157,6 @@
   - name: Dearmor NVIDIA GPG key
     shell: |
       gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg /tmp/nvidia.asc
-    args:
-      creates: /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
     become: true
 
   - name: Set NVIDIA GPG key permissions
@@ -273,7 +290,7 @@
 
   - name: Download Kubernetes GPG key (Armor)
     ansible.builtin.get_url:
-      url: https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key
+      url: https://pkgs.k8s.io/core:/stable:/v1.35/deb/Release.key
       dest: /tmp/k8s.asc
       mode: '0644'
       force: yes
@@ -282,8 +299,6 @@
   - name: Dearmor Kubernetes GPG key
     shell: |
       gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg /tmp/k8s.asc
-    args:
-      creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
     become: true
 
   - name: Set Kubernetes GPG key permissions
@@ -295,7 +310,7 @@
   - name: Add Kubernetes repository
     ansible.builtin.lineinfile:
       path: /etc/apt/sources.list.d/kubernetes.list
-      line: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /"
+      line: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.35/deb/ /"
       state: present
       create: yes
     become: true
@@ -314,6 +329,21 @@
       path: /etc/fstab
       regexp: '^([^#].*?\sswap\s+.*)$'
       replace: '# \1'
+    become: true
+
+  - name: Unhold Kubernetes packages
+    shell: apt-mark unhold kubelet kubeadm kubectl
+    become: true
+    ignore_errors: yes
+
+  - name: Remove old Kubernetes packages
+    apt:
+      name:
+      - kubelet
+      - kubeadm
+      - kubectl
+      state: absent
+      purge: yes
     become: true
 
   - name: Install Kubernetes packages

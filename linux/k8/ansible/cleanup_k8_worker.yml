@@ -1,32 +1,4 @@
-# ======================================================================================
-# INITIALIZE K8 CLUSTER WORKERS
-# ======================================================================================
-#
-# (1) Determine k8 master token
-#
-# $ kubeadm token list
-#
-# (2) Determine k8 master hash
-#
-# $ sudo yum install -y openssl
-# $ openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
-#
-# $ export K8_HASH=...
-# $ export K8_TOKEN=...
-#
-# (3) Determine k8 master IP address / port
-#
-# $ export K8_HOST=...
-# $ export K8_PORT=...
-#
-# ======================================================================================
-
-- hosts: workers 
-  vars:
-    k8_host: "{{ lookup('env', 'K8_HOST') }}"
-    k8_port: "{{ lookup('env', 'K8_PORT') }}"
-    k8_token: "{{ lookup('env', 'K8_TOKEN') }}"
-    k8_hash: "{{ lookup('env', 'K8_HASH') }}"
+- hosts: all 
   tasks:
   - name: Reset existing configurations 
     shell: "kubeadm reset -f"
@@ -57,10 +29,10 @@
     become: true
     become_method: sudo
   - name: Bring down cni0
-    shell: "if [ $(ifconfig | grep cni0 | wc -l) -eq 1 ]; then ip link set cni0 down; brctl delbr cni0; fi"
+    shell: "if ip link show cni0 >/dev/null 2>&1; then ip link set cni0 down; ip link delete cni0; fi"
     become: true
     become_method: sudo
-  - name: Bring down flannel.1 
-    shell: "if [ $(ifconfig | grep flannel.1 | wc -l) -eq 1 ]; then ip link set flannel.1 down; fi"
+  - name: Bring down flannel.1
+    shell: "if ip link show flannel.1 >/dev/null 2>&1; then ip link set flannel.1 down; fi"
     become: true
     become_method: sudo
