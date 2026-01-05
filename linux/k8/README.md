@@ -41,21 +41,23 @@ This script:
 #### Step 2: Start the Cluster
 
 ```bash
-# Initialize and start the cluster on master node
-./master-start.sh
+# Initialize and start the cluster on master node (source to export variables)
+source ./master-start.sh
 ```
 
 This script:
 - Initializes the Kubernetes cluster using kubeadm
 - Sets up kubectl configuration for the current user
 - Installs Calico CNI for pod networking
-- Outputs join information for worker nodes
+- Exports environment variables for worker node joining
 
 After completion, the script exports environment variables:
 - `K8_HOST`: Master node IP address
 - `K8_PORT`: API server port (default 6443)
 - `K8_TOKEN`: Join token for worker nodes
 - `K8_HASH`: CA certificate hash for secure join
+
+**Important**: Source the script (using `source` or `.`) to ensure the environment variables are available in your current shell session for the worker join step.
 
 #### Step 3: Stop the Cluster (Optional)
 
@@ -124,15 +126,28 @@ The playbook performs the following stages:
 After `install_k8_main.yml` completes successfully on ALL nodes (master and workers), SSH into the master node and run:
 
 ```bash
-# On the master node
-./master-start.sh
+# On the master node (source to export variables)
+source ./master-start.sh
 ```
 
-This will initialize the cluster and provide join information.
+This will initialize the cluster and export the join variables (K8_HOST, K8_PORT, K8_TOKEN, K8_HASH) needed for the worker join step.
 
 #### Step 4: Join Worker Nodes
 
 Once the master cluster is initialized, join worker nodes:
+
+**Option A: Variables already exported (if you sourced master-start.sh)**
+
+If you ran `source ./master-start.sh` in the same shell session, the variables are already set:
+
+```bash
+# Run the worker installation playbook (variables already exported)
+ansible-playbook -i hosts ansible/install_k8_worker.yml
+```
+
+**Option B: Manually set variables (different shell session)**
+
+If you're in a different shell or didn't source the script:
 
 ```bash
 # Export variables from master-start.sh output

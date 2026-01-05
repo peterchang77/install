@@ -69,7 +69,7 @@ Once Docker has been installed, the prebuilt Docker images need to be downloaded
 
 There are a total of four versions of my prebuilt Docker images. The `full` versions of the images contain many useful Python modules and other software tools to reproduce a comprehensive development environment. The `lite` versions of the images contain only the minimum necessary modules to run models in a production environment. 
 
-All Docker images are built using Tensorflow 2.1 and Python 3.6. In addition the following lists an overview of available Python modules and software:
+All Docker images are built using TensorFlow/Keras. In addition the following lists an overview of available Python modules and software:
 
 *Python*
 
