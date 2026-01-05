@@ -69,6 +69,25 @@
       name: kubelet
     become: true
     become_method: sudo
+  - name: Start containerd 
+    systemd:
+      state: started 
+      name: containerd
+    become: true
+    become_method: sudo
+  - name: Wait for containerd socket to be available
+    wait_for:
+      path: /var/run/containerd/containerd.sock
+      state: present
+      timeout: 30
+    become: true
+  - name: Wait for containerd to be ready
+    shell: crictl info
+    register: containerd_info
+    until: containerd_info.rc == 0
+    retries: 10
+    delay: 3
+    become: true
   - name: Initialize worker 
     shell: kubeadm join --token {{ k8_token }} {{ k8_host }}:{{ k8_port }} --discovery-token-ca-cert-hash sha256:{{ k8_hash }}
     become: true

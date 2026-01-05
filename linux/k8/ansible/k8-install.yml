@@ -209,26 +209,6 @@
     shell: nvidia-ctk runtime configure --runtime=containerd
     become: true
 
-  - name: Check if nvidia runtime section exists in config
-    ansible.builtin.command: grep -q '\[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia\]' /etc/containerd/config.toml
-    register: nvidia_runtime_exists
-    failed_when: false
-    changed_when: false
-    become: true
-
-  - name: Add NVIDIA runtime configuration to containerd
-    ansible.builtin.blockinfile:
-      path: /etc/containerd/config.toml
-      marker: "# {mark} ANSIBLE MANAGED NVIDIA RUNTIME BLOCK"
-      insertafter: '\[plugins\."io\.containerd\.grpc\.v1\.cri"\]'
-      block: |2
-          [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia]
-            runtime_type = "io.containerd.runc.v2"
-            [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia.options]
-              BinaryName = "/usr/bin/nvidia-container-runtime"
-    when: nvidia_runtime_exists.rc != 0
-    become: true
-
   - name: Enable no-cgroups in NVIDIA config
     ansible.builtin.lineinfile:
       path: /etc/nvidia-container-runtime/config.toml

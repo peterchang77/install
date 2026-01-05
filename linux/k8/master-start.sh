@@ -32,6 +32,23 @@ kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.1/
     exit 1
 }
 
+# --- Wait for control plane to be ready
+echo "Waiting for control plane to be ready..."
+kubectl wait --for=condition=ready node --timeout=300s -l node-role.kubernetes.io/control-plane
+
+# --- Install NVIDIA device plugin
+echo "Installing NVIDIA device plugin for GPU support..."
+kubectl create -f nvidia-device-plugin.yml || {
+    echo "WARNING: NVIDIA device plugin installation failed"
+    echo "Note: This is expected on CPU-only nodes"
+    echo "GPU nodes should have the device plugin running successfully"
+}
+
+# --- Verify GPU resources are available (if any GPU nodes exist)
+echo "Checking for GPU resources..."
+sleep 10
+kubectl get nodes -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.allocatable.nvidia\.com/gpu}{"\n"}{end}' 2>/dev/null || echo "No GPU resources found yet"
+
 # --- Get join token and hash
 echo "Retrieving join token..."
 export K8_TOKEN=$(kubeadm token list | awk 'NR==2 {print $1}')

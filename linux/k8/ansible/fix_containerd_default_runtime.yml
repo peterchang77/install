@@ -1,0 +1,65 @@
+---
+- hosts: all
+  tasks:
+  # =======================================================
+  # Stage 1: Ensure Config Version is 3 (Correct for v2.2.1)
+  # =======================================================
+  - name: Ensure config version is 3
+    ansible.builtin.replace:
+      path: /etc/containerd/config.toml
+      regexp: '^version = .*'
+      replace: 'version = 3'
+    become: true
+
+  # =======================================================
+  # Stage 2: Remove Legacy (GRPC) Section
+  # =======================================================
+  # This section is "dead code" in v2.x and causes confusion.
+  - name: Remove legacy GRPC Nvidia runtime block
+    ansible.builtin.blockinfile:
+      path: /etc/containerd/config.toml
+      marker: "# {mark} ANSIBLE MANAGED NVIDIA RUNTIME BLOCK"
+      state: absent
+    become: true
+
+  # =======================================================
+  # Stage 3: Configure Nvidia Runtime in the NEW (v2) Section
+  # =======================================================
+  # We use nvidia-ctk to do this reliably, as it understands the v2 schema better than manual text insertion.
+  - name: Regenerate Nvidia Runtime config using ctk (Corrects schema)
+    ansible.builtin.shell: |
+      nvidia-ctk runtime configure --runtime=containerd --set-as-default
+    become: true
+    register: ctk_output
+
+  - name: Display ctk output
+    ansible.builtin.debug:
+      var: ctk_output.stdout_lines
+
+  # =======================================================
+  # Stage 4: Restart and Verify
+  # =======================================================
+  - name: Restart containerd
+    ansible.builtin.systemd:
+      name: containerd
+      state: restarted
+      daemon_reload: true
+    become: true
+
+  - name: Wait for containerd socket
+    ansible.builtin.wait_for:
+      path: /var/run/containerd/containerd.sock
+      state: present
+      timeout: 30
+    become: true
+
+  - name: Verify Runtime with crictl
+    ansible.builtin.shell: crictl info | grep -oP '"defaultRuntimeName":\s*"\K[^"]+'
+    register: verify_runtime
+    changed_when: false
+    become: true
+
+  - name: Verify success
+    ansible.builtin.debug:
+      msg: "SUCCESS: Runtime is {{ verify_runtime.stdout }}"
+    failed_when: verify_runtime.stdout != "nvidia"
