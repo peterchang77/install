@@ -37,19 +37,19 @@ if [ $proceed == "y" ]; then
 fi
 
 # =============================================================================
-# INSTALL Vundle, vim configuration and plugins
+# INSTALL vim-plug, neovim configuration and plugins
 # =============================================================================
-echo -n "Install vim and plugins (y/n)? "
+echo -n "Install vim/neovim and plugins (y/n)? "
 read proceed
 if [ $proceed == "y" ]; then
-    sudo $pm install -y vim
-    git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+    sudo $pm install -y neovim
+    curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs \
+        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    mkdir -p ~/.config/nvim/colors
     cp vim/.vimrc ~/.vimrc
-    if [ ! -d "$HOME/.vim" ]; then
-        mkdir "$HOME/.vim"
-    fi
-    cp -r ./vim/colors ~/.vim/colors
-    vim +PluginInstall qall
+    ln -sf ~/.vimrc ~/.config/nvim/init.vim
+    cp -r ./vim/colors/* ~/.config/nvim/colors/
+    nvim +PlugInstall +qall
     if [ $pm == "apt-get" ]; then
         sudo $pm install -y silversearcher-ag
     fi
