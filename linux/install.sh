@@ -44,6 +44,7 @@ read proceed
 if [ $proceed == "y" ]; then
     sudo $pm remove -y vim vim-runtime vim-common 2>/dev/null
     sudo $pm install -y neovim ripgrep fd-find make gcc
+    rm -f ~/.config/nvim/init.vim ~/.vimrc
     mkdir -p ~/.config/nvim/lua/plugins ~/.config/nvim/colors
     cp nvim/init.lua ~/.config/nvim/init.lua
     cp nvim/lua/plugins/*.lua ~/.config/nvim/lua/plugins/
