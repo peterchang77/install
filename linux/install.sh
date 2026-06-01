@@ -42,6 +42,7 @@ fi
 echo -n "Install neovim and plugins (y/n)? "
 read proceed
 if [ $proceed == "y" ]; then
+    sudo $pm remove -y vim vim-runtime vim-common 2>/dev/null
     sudo $pm install -y neovim ripgrep fd-find make gcc
     mkdir -p ~/.config/nvim/lua/plugins ~/.config/nvim/colors
     cp nvim/init.lua ~/.config/nvim/init.lua
