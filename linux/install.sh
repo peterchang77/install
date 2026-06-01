@@ -42,14 +42,17 @@ fi
 echo -n "Install neovim and plugins (y/n)? "
 read proceed
 if [ $proceed == "y" ]; then
-    sudo $pm remove -y vim vim-runtime vim-common 2>/dev/null
-    sudo $pm install -y neovim ripgrep fd-find make gcc
+    sudo $pm remove -y vim vim-runtime vim-common neovim neovim-runtime 2>/dev/null
+    sudo $pm install -y ripgrep fd-find make gcc curl
+    curl -Lo /tmp/nvim.appimage https://github.com/neovim/neovim/releases/download/v0.9.5/nvim.appimage
+    chmod +x /tmp/nvim.appimage
+    sudo mv /tmp/nvim.appimage /usr/local/bin/nvim
     rm -f ~/.config/nvim/init.vim ~/.vimrc
     mkdir -p ~/.config/nvim/lua/plugins ~/.config/nvim/colors
     cp nvim/init.lua ~/.config/nvim/init.lua
     cp nvim/lua/plugins/*.lua ~/.config/nvim/lua/plugins/
     cp -r nvim/colors/* ~/.config/nvim/colors/
-    nvim --headless "+lua require('lazy').sync({wait=true})" +qa
+    nvim --headless -c 'lua require("lazy").sync()' -c 'autocmd User LazySync qall'
 fi
 
 # =============================================================================
