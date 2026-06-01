@@ -48,7 +48,7 @@ if [ $proceed == "y" ]; then
     cp nvim/init.lua ~/.config/nvim/init.lua
     cp nvim/lua/plugins/*.lua ~/.config/nvim/lua/plugins/
     cp -r nvim/colors/* ~/.config/nvim/colors/
-    nvim --headless "+Lazy! sync" +qa
+    nvim --headless -c "lua require('lazy').sync({wait=true})" +qa
 fi
 
 # =============================================================================
