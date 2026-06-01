@@ -37,22 +37,17 @@ if [ $proceed == "y" ]; then
 fi
 
 # =============================================================================
-# INSTALL vim-plug, neovim configuration and plugins
+# INSTALL neovim with lazy.nvim, telescope, and plugins
 # =============================================================================
-echo -n "Install vim/neovim and plugins (y/n)? "
+echo -n "Install neovim and plugins (y/n)? "
 read proceed
 if [ $proceed == "y" ]; then
-    sudo $pm install -y neovim
-    curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs \
-        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-    mkdir -p ~/.config/nvim/colors
-    cp vim/.vimrc ~/.vimrc
-    ln -sf ~/.vimrc ~/.config/nvim/init.vim
-    cp -r ./vim/colors/* ~/.config/nvim/colors/
-    nvim +PlugInstall +qall
-    if [ $pm == "apt-get" ]; then
-        sudo $pm install -y silversearcher-ag
-    fi
+    sudo $pm install -y neovim ripgrep fd-find make gcc
+    mkdir -p ~/.config/nvim/lua/plugins ~/.config/nvim/colors
+    cp nvim/init.lua ~/.config/nvim/init.lua
+    cp nvim/lua/plugins/*.lua ~/.config/nvim/lua/plugins/
+    cp -r nvim/colors/* ~/.config/nvim/colors/
+    nvim --headless "+Lazy! sync" +qa
 fi
 
 # =============================================================================
