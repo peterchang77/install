@@ -33,7 +33,9 @@ return {
       sources = cmp.config.sources({
         { name = "nvim_lsp" },
         { name = "buffer" },
-        { name = "path" },
+        { name = "path", option = { get_cwd = function(params)
+          return vim.fn.expand(("#%d:p:h"):format(params.context.bufnr))
+        end } },
       }),
     })
   end,
