@@ -17,7 +17,9 @@ vim.opt.smarttab = true
 vim.opt.tabstop = 8
 vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
-vim.opt.clipboard = "unnamed"
+if os.getenv("DISPLAY") and #os.getenv("DISPLAY") > 0 then
+  vim.opt.clipboard = "unnamed"
+end
 vim.opt.termguicolors = false
 
 -- JavaScript indent
